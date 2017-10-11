@@ -15,10 +15,14 @@ class AffineLayerSpec extends FlatSpec with ShouldMatchers {
   val b: T = t(1,-1)
 
   // can't test without a terminal output layer
-  private def dense() = Affine(W, b) !! output
+  private def dense() = Affine("", W, b) !! output
 
   "An activation layer" should "support forward pass by applying its function" in {
     dense().fp(t(2, 3)) shouldEqual t(9,-8)
+  }
+
+  "An activation layer" should "support forward pass for arbitrary batches" in {
+    dense().fp(tn(2)(2, 3, 2, 3)) shouldEqual tn(2)(9,-8, 9, -8)
   }
 
   it should "support chaining with the !! operator and next()" in {
@@ -35,6 +39,10 @@ class AffineLayerSpec extends FlatSpec with ShouldMatchers {
 
   it should "support dC_dy" in {
     dense().dC_dy(t(2,3), t(-1, 2)) shouldEqual t(-5, -4)
+  }
+
+  it should "support dC_dy for arbitrary batches" in {
+    dense().dC_dy(tn(2)(2,3,2,3), tn(2)(-1, 2,-1, 2)) shouldEqual tn(2)(-5, -4,-5, -4)
   }
 
   it should "provide correct grads()" in {

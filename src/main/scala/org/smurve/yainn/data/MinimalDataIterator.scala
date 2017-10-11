@@ -6,29 +6,35 @@ import org.nd4s.Implicits._
 
 /**
   * produces "noisy" versions of simple 9-bit symbols
-  * @param noise the noise, typically < 0.3
-  * @param defaultBatchSize the size of the batches to be provided by nextBatch()
+  * @param noiseRatio the noise, typically < 0.3
+  * @param miniBatchSize the size of the batches to be provided by nextBatch()
   * @param seed a random seed
   */
-class MinimalDataIterator (noise: Double, defaultBatchSize: Int, seed: Long) {
+class MinimalDataIterator (noiseRatio: Double, miniBatchSize: Int, numMiniBatches: Int, seed: Long) extends Iterator {
+
+  val imgs: T = Nd4j.zeros(9, miniBatchSize * numMiniBatches)
+  val lbls: T = Nd4j.zeros(3, miniBatchSize * numMiniBatches)
+
+
+  var cursor = 0
 
   val cross: T = t(
     1, 0, 1,
     0, 1, 0,
     1, 0, 1)
-  val label_cross: T = t(1, 0)
+  val label_cross: T = t(1, 0, 0)
 
   val diamond: T = t(
     0, 1, 0,
     1, 0, 1,
     0, 1, 0)
-  val label_diamond: T = t(0, 1)
+  val label_diamond: T = t(0, 1, 0)
 
   val tee: T = t(
     1, 1, 1,
     0, 1, 0,
     0, 1, 0)
-  val label_tee: T = t(0, 1)
+  val label_tee: T = t(0, 0, 1)
 
   val alphabet = List(
     (cross, label_cross),
@@ -38,14 +44,47 @@ class MinimalDataIterator (noise: Double, defaultBatchSize: Int, seed: Long) {
 
   val rng = new java.util.Random(seed)
 
+  createData()
   /**
     * provide a list of pairs of symbols and labels
-    * @param batchSize override the default batch size if you wish
     */
-  def nextBatch( batchSize: Int = defaultBatchSize): List[(T, T)] = {
-    (1 to batchSize).map (_ => {
+  def createData(): Unit = {
+    for (i <- 0 until numMiniBatches * miniBatchSize ) {
       val symbol = (rng.nextDouble() * alphabet.size).toInt
-      (alphabet(symbol)._1 + Nd4j.rand(9, 1, rng.nextLong()), alphabet(symbol)._2)
-    }).toList
+      val img = alphabet(symbol)._1
+      val lbl = alphabet(symbol)._2
+      imgs(->, i) = img.T
+      lbls(->, i) = lbl.T
+    }
+    val noise = (Nd4j.rand(seed, imgs.length).reshape(imgs.rows,imgs.columns()) - 0.5) * noiseRatio
+    imgs.addi(noise)
+  }
+
+  /**
+    * provide a list of pairs of symbols and labels
+    */
+  def nextMiniBatch (): (T, T) = {
+    if (!hasNext) throw new UnsupportedOperationException("Iterator exhausted. Call init() to start from scratch.")
+    val batchImgs = imgs(--->, cursor * miniBatchSize ->  (cursor+1) * miniBatchSize)
+    val batchLbls = lbls(--->, cursor * miniBatchSize ->  (cursor+1) * miniBatchSize)
+    cursor = cursor + 1
+    (batchImgs, batchLbls)
+  }
+
+  override def hasNext: Boolean = cursor < numMiniBatches
+
+  override def reset(): Unit = cursor = 0
+
+  override def newTestData ( numTests: Int): (T, T) = {
+    val testImgs = Nd4j.zeros(9, numTests)
+    val testLbls = Nd4j.zeros(3, numTests)
+    for (i <- 0 until numTests ) {
+      val symbol = (rng.nextDouble() * alphabet.size).toInt
+      val img = alphabet(symbol)._1 + Nd4j.rand(9, 1, rng.nextLong())*noiseRatio
+      val lbl = alphabet(symbol)._2
+      testImgs(--->, i) = img.T
+      testLbls(--->, i) = lbl.T
+    }
+    (testImgs, testLbls)
   }
 }

@@ -38,10 +38,10 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
   val yb2: T = t(0, 1) // a label saying: diamond
 
   // the full network
-  def nn(W0: T, b0: T, W1: T, b1: T): Layer = Affine(W0, b0) !! tail
+  def nn(W0: T, b0: T, W1: T, b1: T): Layer = Affine("", W0, b0) !! tail
 
   // the sub-network without the first affine layer
-  val tail: Layer = Sigmoid() !! Affine(W1, b1) !! Sigmoid() !! Output(euc, euc_prime)
+  val tail: Layer = Sigmoid() !! Affine("", W1, b1) !! Sigmoid() !! Output(euc, euc_prime)
 
 
   /**
@@ -82,8 +82,8 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val (wl, wr) = Wlr(W0, r, c, epsilon)
 
       // networks with slightly changed paramters
-      val nn_l = Affine(wl, b0) !! tail
-      val nn_r = Affine(wr, b0) !! tail
+      val nn_l = Affine("", wl, b0) !! tail
+      val nn_r = Affine("", wr, b0) !! tail
 
       // it's like comparing two networks and seeing which one's better!
       val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
@@ -103,8 +103,8 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val (bl, br) = blr(b0, r, epsilon)
 
       // networks with slightly changed paramters
-      val nn_l = Affine(W0, bl) !! tail
-      val nn_r = Affine(W0, br) !! tail
+      val nn_l = Affine("", W0, bl) !! tail
+      val nn_r = Affine("", W0, br) !! tail
 
       // it's like comparing two networks and seeing which one's better!
       val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
@@ -123,8 +123,8 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val (wl, wr) = Wlr(W1, r, c, epsilon)
 
       // networks with slightly changed paramters
-      val nn_l = Affine(W0, b0) !! Sigmoid() !! Affine(wl, b1) !! Sigmoid() !! Output(euc, euc_prime)
-      val nn_r = Affine(W0, b0) !! Sigmoid() !! Affine(wr, b1) !! Sigmoid() !! Output(euc, euc_prime)
+      val nn_l = Affine("", W0, b0) !! Sigmoid() !! Affine("", wl, b1) !! Sigmoid() !! Output(euc, euc_prime)
+      val nn_r = Affine("", W0, b0) !! Sigmoid() !! Affine("", wr, b1) !! Sigmoid() !! Output(euc, euc_prime)
 
       // it's like comparing two networks and choosing the better one
       val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
@@ -143,8 +143,8 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val (bl, br) = blr(b1, r, epsilon)
 
       // networks with slightly changed paramters
-      val nn_l = Affine(W0, b0) !! Sigmoid() !! Affine(W1, bl) !! Sigmoid() !! Output(euc, euc_prime)
-      val nn_r = Affine(W0, b0) !! Sigmoid() !! Affine(W1, br) !! Sigmoid() !! Output(euc, euc_prime)
+      val nn_l = Affine("", W0, b0) !! Sigmoid() !! Affine("", W1, bl) !! Sigmoid() !! Output(euc, euc_prime)
+      val nn_r = Affine("", W0, b0) !! Sigmoid() !! Affine("", W1, br) !! Sigmoid() !! Output(euc, euc_prime)
 
       // it's like comparing two networks and choosing the better one
       val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon

@@ -1,49 +1,69 @@
 package org.smurve.yainn.experiments
 
+import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
+import org.nd4s.Implicits._
 import org.smurve.yainn._
 import org.smurve.yainn.components.{Affine, BackPack, Layer, Output}
 import org.smurve.yainn.data.MinimalDataIterator
-import org.nd4s.Implicits._
 
+/**
+  * A minimal experiment with very small artificial data sets and few parameters.
+  */
 object MinimalExperiment {
 
   def main(args: Array[String]): Unit = {
     val seed = 1234L
-
-    val NOISE = 0.7
-    val BATCH_SIZE = 20
-    val NUM_BATCHES = 20
-    val ETA = .3
     val N_TEST = 100
+    val N_DEMO = 10
 
-    val data = new MinimalDataIterator(NOISE, BATCH_SIZE, seed)
-    val testSet = data.nextBatch(N_TEST)
+    //  // 3 different symbols on 3x3 images
+    val NOISE = 0.4
+    val BATCH_SIZE = 200
+    val NUM_BATCHES = 10
+    val NUM_EPOCHS = 10
+    val ETA = 2e-3
 
-    val nn = createNetwork (seed)
+    println("Creating data iterator...")
+    val data = new MinimalDataIterator(NOISE, BATCH_SIZE, NUM_BATCHES, seed)
+    println("Done.")
 
-    for ( b <- 1 to NUM_BATCHES ) {
+    val nn = createNetwork(9, 16, 3, seed)
 
-      val trainingSet = data.nextBatch()
+    val testSet = data.newTestData(N_TEST)
 
-      val allCost = for ((symbol, label) <- trainingSet) yield {
+    for (e <- 1 to NUM_EPOCHS) {
+      var b = 1
+      while (data.hasNext) {
 
-        val BackPack(cost, _, grads) = nn.fbp(symbol, label)
+        val (trainingImages, trainingLabels) = data.nextMiniBatch()
+
+        val BackPack(cost, _, grads) = nn.fbp(trainingImages, trainingLabels)
         val deltas = grads.map(p => {
           (p._1 * ETA, p._2 * ETA)
         })
         nn.update(deltas)
-        cost
-      }
-      val avg = allCost.sum / BATCH_SIZE
 
-      println(s"Batch Nr: $b: Cost=$avg")
-      //println("Validating...")
-      val successRate = validate ( nn, testSet ) * 100
+        if (!data.hasNext) println(s"Epoch Nr. $e, Batch Nr: $b: Cost=$cost")
+        b += 1
+      }
+      data.reset()
+      val successRate = validate(nn, testSet).sum(1)
       println(s"Sucess rate: $successRate")
     }
 
+    predict(nn, data.newTestData(N_DEMO))
 
+  }
+
+  def predict(nn: Layer, samples: (T, T)): Unit = {
+    val imgs = samples._1
+    val n = imgs.size(1)
+    for ( i <- 0 until n ) {
+      val img = imgs(->, i)
+      val lbl = nn.fp(img)
+      println(asString(img) + " = " + lbl + ": " + nameFor(lbl) + "\n")
+    }
   }
 
   /**
@@ -51,23 +71,44 @@ object MinimalExperiment {
     * @param seed a random seed
     * @return the first layer representing the network
     */
-  def createNetwork (seed: Long): Layer = {
-    val (nx, nh, ny) = (9, 16, 2)
+  def createNetwork (nx: Int, nh: Int, ny: Int, seed: Long): Layer = {
 
     val W0 = Nd4j.rand(nh, nx, seed) - 0.5
     val b0 = Nd4j.rand(nh, 1, seed) - 0.5
     val W1 = Nd4j.rand(ny, nh, seed) - 0.5
     val b1 = Nd4j.rand(ny, 1, seed) - 0.5
 
-    Affine(W0, b0) !! Sigmoid() !! Affine(W1, b1) !! Sigmoid() !! Output(euc, euc_prime)
+    Affine("Input", W0, b0) !! Relu() !! Affine("Hidden", W1, b1) !! Sigmoid() !! Output(euc, euc_prime)
   }
 
   /**
     * Count the number of true positives within a test set.
     */
-  def validate(nn: Layer, testSet: List[(T, T)]): Double =
-    testSet.map{ case (image, label) => if ( equiv(nn.fp(image), label)) 1 else 0 }.sum.toDouble / testSet.size
+  def validate(nn: Layer, testSet: (T, T)): INDArray =
+    equiv(nn.fp(testSet._1), testSet._2)
 
 
+  def nameFor(classification: T): String = {
+    if (equiv(classification, t(1,0,0)) == t(1)) "cross"
+    else if (equiv(classification, t(0,1,0)) == t(1)) "diamond"
+    else if (equiv(classification, t(0,0,1)) == t(1)) "tee"
+    else "not recognized"
+  }
+
+  /** A value > .5 is a black pixel,
+    *
+    * @param img the image to display
+    */
+  def asString(img: T): String = {
+    val reshaped = img.reshape(3,3)
+    (for ( r <- 0 until 3 ) yield {
+      (for (c <- 0 until 3) yield pixelFor (reshaped.getDouble(r, c) ) ).mkString("")
+    }).mkString("\n")
+  }
+
+  def pixelFor(d: Double): String =
+    if (d > .9) "88"
+    else if ( d > .2) "::"
+    else if ( d > .1) ". "
+    else "  "
 }
-
