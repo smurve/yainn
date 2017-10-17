@@ -15,14 +15,14 @@ object MinimalExperiment {
   def main(args: Array[String]): Unit = {
     val seed = 1234L
     val N_TEST = 100
-    val N_DEMO = 10
+    val N_DEMO = 5
 
     //  // 3 different symbols on 3x3 images
     val NOISE = 0.4
-    val BATCH_SIZE = 200
-    val NUM_BATCHES = 10
-    val NUM_EPOCHS = 10
-    val ETA = 2e-3
+    val BATCH_SIZE = 20
+    val NUM_BATCHES = 2
+    val NUM_EPOCHS = 5
+    val ETA = 3e-1
 
     println("Creating data iterator...")
     val data = new MinimalDataIterator(NOISE, BATCH_SIZE, NUM_BATCHES, seed)
@@ -33,7 +33,6 @@ object MinimalExperiment {
     val testSet = data.newTestData(N_TEST)
 
     for (e <- 1 to NUM_EPOCHS) {
-      var b = 1
       while (data.hasNext) {
 
         val (trainingImages, trainingLabels) = data.nextMiniBatch()
@@ -44,11 +43,10 @@ object MinimalExperiment {
         })
         nn.update(deltas)
 
-        if (!data.hasNext) println(s"Epoch Nr. $e, Batch Nr: $b: Cost=$cost")
-        b += 1
+        if (!data.hasNext) println(s"Epoch Nr. $e, after $NUM_BATCHES batches: Cost=$cost")
       }
       data.reset()
-      val successRate = validate(nn, testSet).sum(1)
+      val successRate = successCount(nn, testSet).sum(1)
       println(s"Sucess rate: $successRate")
     }
 
@@ -84,7 +82,7 @@ object MinimalExperiment {
   /**
     * Count the number of true positives within a test set.
     */
-  def validate(nn: Layer, testSet: (T, T)): INDArray =
+  def successCount(nn: Layer, testSet: (T, T)): INDArray =
     equiv(nn.fp(testSet._1), testSet._2)
 
 

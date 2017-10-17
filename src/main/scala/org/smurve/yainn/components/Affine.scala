@@ -19,8 +19,7 @@ case class Affine(name: String, W: T, b: T) extends AbstractLayer {
     (b_2, w_21, w_22) * ( x_11 | x_12 ) = ( b_2 + w_21 * x_11 + w22 * x_21 | b_2 + w_21 * x_12 + w22 * x_22 )
     (b_3, w_31, w_32)   ( x_21 | x_22 )   ( b_3 + w_31 * x_11 + w32 * x_21 | b_3 + w_31 * x_12 + w32 * x_22 )
      */
-    val res = h(b, W) ** v1(x)
-    res
+    h(b, W) ** v1(x)
   }
 
   override def grads(x: T, dC_dy: T): Option[(T, T)] = Some((dC_dy ** x.T, dC_dy.sum(1)))

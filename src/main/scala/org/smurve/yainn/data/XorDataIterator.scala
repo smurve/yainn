@@ -4,7 +4,7 @@ import org.nd4j.linalg.factory.Nd4j
 import org.smurve.yainn._
 import org.nd4s.Implicits._
 
-class XorDataIterator(seed: Long) extends Iterator {
+class XorDataIterator(seed: Long) extends DataIterator {
 
   val rng = new java.util.Random(seed)
 

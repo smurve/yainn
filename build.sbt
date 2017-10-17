@@ -6,10 +6,6 @@ organization := "org.smurve"
 val nd4jVersion = "0.9.1"
 val dl4jVersion = "0.9.1"
 
-/**
-  * to be able to compile the code on any dev machine, the cuda library must be used as "provided". Thus the code compiles but simply
-  * doesn't have an impact on performance when used in a non-cuda environment
-  */
 libraryDependencies ++= Seq(
   "com.github.fommil.netlib" % "all" % "1.1.2",
   "org.clapper" %% "grizzled-slf4j" % "1.3.1",

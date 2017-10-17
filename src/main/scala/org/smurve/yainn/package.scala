@@ -73,4 +73,74 @@ package object yainn {
   }
 
 
+  def scaleToByte(min: Double, max: Double)(x: Double): Byte = {
+    if (x < 0) 0 else {
+      val min0 = math.max(0, min)
+      (255 * (x - min0) / (max - min0)).toByte
+    }
+  }
+
+
+  /**
+    * visualize any 2-dim INDArray (e.g. an image) console-style.
+    * @param x the matrix to be visualized
+    * @return
+    */
+  def visualize(x: INDArray): String = {
+    val hborder = " " + ("-" * 2 * x.size(0))
+    require(x.rank == 2, "Can only visualize 2-dim arrays")
+    val min: Double = x.minT[Double]
+    val max: Double = x.maxT[Double]
+    val img = (0 until x.size(0)).map(i => {
+      val arr = toArray(x(i, ->))
+      val row = arr.map(scaleToByte(min, max))
+      rowAsString(row)
+    }).mkString("\n")
+    hborder + "\n" + img + "\n" + hborder
+  }
+
+
+  def rowAsString(bytes: Array[Byte]): String = {
+    val res = bytes.map(b => {
+      val n = b & 0xFF
+      val c = if (n == 0) 0 else n / 32 + 1
+      c match {
+        case 0 => "  "
+        case 1 => "' "
+        case 2 => "''"
+        case 3 => "::"
+        case 4 => ";;"
+        case 5 => "cc"
+        case 6 => "OO"
+        case 7 => "00"
+        case 8 => "@@"
+      }
+    }).mkString("")
+    "|" + res + "|"
+  }
+
+  /**
+    * create a scala array from an INDArray
+    * @param inda the ND4J Array to be converted
+    */
+  def toArray(inda: INDArray): Array[Double] = {
+    val array = Array.fill(inda.length) (0.0)
+    array.indices.foreach { index => array(index) = inda.getDouble(index)}
+    array
+  }
+
+  /**
+    * useful wrapper to measure execution time with little overhead
+    * @param expression the expression to be executed
+    * @tparam T the return type of the expression
+    * @return a pair consisting of the actual result and the time spent to compute in millies
+    */
+  def timed[T](expression: => T): (T, Long) = {
+    val in = System.currentTimeMillis()
+    val res = expression
+    val out = System.currentTimeMillis()
+    (res, out - in)
+  }
+
+
 }

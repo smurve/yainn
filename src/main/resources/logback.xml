@@ -8,9 +8,9 @@
         </encoder>
     </appender>
 
-    <logger name="org.smurve" level="INFO"/>
-    <logger name="org.deeplearning4j" level="INFO"/>
-    <logger name="org.nd4s" level="INFO"/>
+    <logger name="org.smurve" level="info"/>
+    <logger name="org.deeplearning4j" level="info"/>
+    <logger name="org.nd4j" level="info"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT" />

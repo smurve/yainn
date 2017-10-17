@@ -10,7 +10,7 @@ import org.nd4s.Implicits._
   * @param miniBatchSize the size of the batches to be provided by nextBatch()
   * @param seed a random seed
   */
-class MinimalDataIterator (noiseRatio: Double, miniBatchSize: Int, numMiniBatches: Int, seed: Long) extends Iterator {
+class MinimalDataIterator (noiseRatio: Double, miniBatchSize: Int, numMiniBatches: Int, seed: Long) extends DataIterator {
 
   val imgs: T = Nd4j.zeros(9, miniBatchSize * numMiniBatches)
   val lbls: T = Nd4j.zeros(3, miniBatchSize * numMiniBatches)
