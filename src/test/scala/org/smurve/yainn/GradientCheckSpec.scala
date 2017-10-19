@@ -27,6 +27,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   def euc_prime(x: T, x0: T): T = x - x0
 
+  /** Some test data */
   val W0: T = t(1, 2, 3, 4, .2, .3, .4, .5, .1, -.3, .4, -.5).reshape(N_h, N_x)
   val b0: T = t(.2, -1, .3)
   val W1: T = t(1, 2, 3, 4, .2, .3).reshape(N_y, N_h)
@@ -42,33 +43,6 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   // the sub-network without the first affine layer
   val tail: Layer = Sigmoid() !! Affine("", W1, b1) !! Sigmoid() !! Output(euc, euc_prime)
-
-
-  /**
-    * Numerical gradient computation suffers from the "difference of large numbers" problem, thus a deviation
-    * of anything below 1% is just fine.
-    */
-  implicit val doubleEq: Equality[Double] = new Equality[Double] {
-    override def areEqual(a: Double, b: Any): Boolean =
-      math.abs(a - b.asInstanceOf[Double]) / (math.abs(a + b.asInstanceOf[Double]) + 1e-20) < 0.01
-  }
-
-  /**
-    * matrix pairs plus/minus a little epsilon from the original at row r, col c
-    */
-  def Wlr(W: T, r: Int, c: Int, epsilon: Double): (T, T) = {
-    val b = Nd4j.rand(W.shape, seed)
-    val base = b === b(r, c) // this is a trick to get a matrix with value 1 at pos (r,c), 0 otherwise
-    val res = (W - base * epsilon, W + base * epsilon)
-    res
-  }
-
-  /**
-    * vector pairs plus/minus a little epsilon from the original at row r, col c
-    */
-  def blr(W: T, i: Int, epsilon: Double): (T, T) = {
-    Wlr(W, i, 0, epsilon)
-  }
 
 
   "A minimal neural network" should "compute numerically plausible gradients in the first layer's weights" in {
@@ -153,5 +127,37 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
     }
 
   }
+
+  /******************************************************************************
+   *                  Helpers
+   ******************************************************************************/
+
+  /**
+    * Numerical gradient computation suffers from the "difference of large numbers" problem, thus a deviation
+    * of anything below 1% is just fine.
+    */
+  implicit val doubleEq: Equality[Double] = new Equality[Double] {
+    override def areEqual(a: Double, b: Any): Boolean =
+      math.abs(a - b.asInstanceOf[Double]) / (math.abs(a + b.asInstanceOf[Double]) + 1e-20) < 0.01
+  }
+
+  /**
+    * matrix pairs plus/minus a little epsilon from the original at row r, col c
+    */
+  def Wlr(W: T, r: Int, c: Int, epsilon: Double): (T, T) = {
+    val b = Nd4j.rand(W.shape, seed)
+    val base = b === b(r, c) // this is a trick to get a matrix with value 1 at pos (r,c), 0 otherwise
+    val res = (W - base * epsilon, W + base * epsilon)
+    res
+  }
+
+  /**
+    * vector pairs plus/minus a little epsilon from the original at row r, col c
+    */
+  def blr(W: T, i: Int, epsilon: Double): (T, T) = {
+    Wlr(W, i, 0, epsilon)
+  }
+
+
 
 }

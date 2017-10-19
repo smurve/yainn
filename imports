@@ -1,0 +1,4 @@
+import org.nd4j.linalg.factory.Nd4j
+import org.nd4j.linalg.ops.transforms.Transforms._
+import org.nd4s.Implicits._
+import org.smurve.yainn._

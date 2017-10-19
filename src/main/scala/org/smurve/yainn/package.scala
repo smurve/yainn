@@ -142,5 +142,32 @@ package object yainn {
     (res, out - in)
   }
 
+  /**
+    * @return a stride-2 2x2 sum pooling matrix
+    * @param dim the even dimension of a dim x dim input vector
+    */
+  def pool2by2(dim: Int): T = {
+    val res = Nd4j.zeros(dim*dim/4, dim*dim)
+    val d = dim/2
+    for {
+      r1 <- 0 until d
+      r2 <- 0 until d
+      y = d * r1 + r2
+      x = 4 * r1 * d + 2 * r2
+    } {
+      res(y, x) = 1.0
+      res(y, x+1) = 1.0
+      res(y, x+2*d) = 1.0
+      res(y, x+2*d+1) = 1.0
+    }
+    res
+  }
+
+  /**
+    * @return a sharpened image by suppressing smaller pixel values
+    * @param x  an image
+    * @param cut the pixel value below which to filter
+    */
+  def sharpen(x: T, cut: Double): T = relu(x - cut)
 
 }

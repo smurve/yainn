@@ -15,4 +15,23 @@ class PackageSpec extends FlatSpec with ShouldMatchers {
 
 
   }
+
+  "conv2" should "return a correct pooling matrix" in {
+    val Pooling = pool2by2( 6 )
+    val input = t(
+      1,0,1,1,0,1,
+      0,0,0,0,1,1,
+      1,1,0,0,1,0,
+      1,1,0,0,0,1,
+      0,0,0,1,0,1,
+      1,0,0,0,1,0
+    )
+    val expected = t(
+      1,2,3,
+      4,0,2,
+      1,1,2
+    )
+    Pooling ** input shouldBe expected
+
+  }
 }
