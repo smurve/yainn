@@ -1,10 +1,7 @@
 package org.smurve.yainn.experiments
 
 import grizzled.slf4j.Logging
-import org.nd4j.linalg.factory.Nd4j
 import org.nd4s.Implicits._
-import org.smurve.yainn._
-import org.smurve.yainn.components.{Affine, Output}
 import org.smurve.yainn.helpers.SGDTrainer
 
 import scala.language.postfixOps
@@ -26,7 +23,7 @@ object HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Logging 
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
       override val NUM_EPOCHS = 2
-      override val ETA = 9e-2 // Learning Rate, you'll probably need to play with this, when you play with other networks designs.
+      override val ETA = 9e-2  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** read data from disk */

@@ -1,15 +1,15 @@
 package org.smurve.yainn.helpers
 
+import org.nd4s.Implicits._
 import org.smurve.yainn.components.{BackPack, Layer}
-import org.smurve.yainn.data.MNISTDataIterator
+import org.smurve.yainn.data.DataIterator
 import org.smurve.yainn.experiments.HiddenLayersMNISTExperiment.{printstats, successCount}
 import org.smurve.yainn.experiments.Params
 import org.smurve.yainn.timed
-import org.nd4s.Implicits._
 
 class SGDTrainer ( nn: Layer) {
 
-  def train( iterator: MNISTDataIterator, params: Params ) {
+  def train( iterator: DataIterator, params: Params ) {
 
     val testSet = iterator.newTestData(params.TEST_SIZE)
 

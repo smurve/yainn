@@ -23,11 +23,11 @@ object SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
-    /** Overriding the parameters and hyper-parameters here */
+    /** Overriding the default parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
       override val NUM_EPOCHS = 100
-      override val ETA = 1e-3 // Learning Rate, you'll probably need to play with this, when you play with other networks designs.
+      override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** read data from disk */

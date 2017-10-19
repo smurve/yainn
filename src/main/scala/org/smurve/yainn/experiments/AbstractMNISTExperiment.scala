@@ -15,12 +15,12 @@ import scala.language.postfixOps
   */
 class Params () {
   val SEED = 12345L // always use a seed to guarantee reproducible results!
-  val TEST_SIZE = 1000
-  val N_DEMO = 10
+  val TEST_SIZE = 1000 // could be 10'000 at max
+  val N_DEMO = 10 // typically enough just to demo
   val TRAINING_SIZE = 60000 // use all 60000 images available in the MNIST dataset
   val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-  val NUM_EPOCHS = 2
-  val ETA = 1e-4 // Learning Rate, you'll probably need to play with this, when you play with other networks designs.
+  val NUM_EPOCHS = 2 // Take your time and allow the network to converge.
+  val ETA = 1e-4  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
   def NUM_BATCHES: Int = TRAINING_SIZE / MINI_BATCH_SIZE
 }
 
