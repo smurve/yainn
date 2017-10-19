@@ -13,7 +13,7 @@ import scala.language.postfixOps
 
 /**
   * Advanced strategy: Pretrain the first layer in an auto-encoder setup and use it afterwards to feed a regular network.
-  * Delivers a 94.5% success rate
+  * Delivers a 96.2% success rate
   * Run this without any arguments to see how
   * a) data is loaded from the MNIST-provided files
   * b) a network is created consisting of affine (dense, or fully connected) layers and appropriate activation functions
@@ -53,7 +53,7 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
 
     /** stack some layers to form a generative autoencoder */
-    val numFeatures = 128
+    val numFeatures = 200
 
     val W1 = (Nd4j.rand(numFeatures, 784, params1.SEED) - 0.5) / 10.0
     val b1 = (Nd4j.rand(numFeatures, 1, params1.SEED) - 0.5) / 10.0
@@ -63,7 +63,7 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
     val nn1 = Affine("Dense", W1, b1) !! Affine("Dense", W2, b2) !! Sigmoid() !! Output(euc, euc_prime)
 
-    /** Train the network to reproduce the image from its lower-dim intermediate encoding */
+    /** Train the network to reproduce any image from its lower-dim intermediate encoding */
     new SGDTrainer(nn1).train(aeIterator, params1)
 
     val x = aeIterator.newTestData(1)._1
@@ -78,10 +78,10 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
     /** the regular network */
     val iterator = createIterator(params2)
-    val W3 = (Nd4j.rand(200, numFeatures, params1.SEED) - 0.5) / 10.0
-    val b3 = (Nd4j.rand(200, 1, params1.SEED) - 0.5) / 10.0
+    val W3 = (Nd4j.rand(400, numFeatures, params1.SEED) - 0.5) / 10.0
+    val b3 = (Nd4j.rand(400, 1, params1.SEED) - 0.5) / 10.0
 
-    val W4 = (Nd4j.rand(10, 200, params1.SEED) - 0.5) / 10.0
+    val W4 = (Nd4j.rand(10, 400, params1.SEED) - 0.5) / 10.0
     val b4 = (Nd4j.rand(10, 1, params1.SEED) - 0.5) / 10.0
 
     val nn2 = Affine("Dense", W1, b1) !! Relu() !!  Affine("Dense", W3, b3) !! Relu() !! Affine("Dense", W4, b4) !! Sigmoid() !! Output(euc, euc_prime)
