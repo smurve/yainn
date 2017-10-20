@@ -23,8 +23,8 @@ object PreprocessingMNISTExperiment extends AbstractMNISTExperiment with Logging
     /** Overriding some of the default parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 20
-      override val ETA = 3e-1  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      override val NUM_EPOCHS = 30
+      override val ETA = 1e-2  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** read data from disk */
