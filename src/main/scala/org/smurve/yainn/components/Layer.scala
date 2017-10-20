@@ -65,8 +65,8 @@ trait Layer {
 
   /**
     * Update all parameters
-    * @param grads a list of gradients for all layers, top to bottom
+    * @param deltas a list of gradients for all layers, top to bottom
     */
-  def update(grads: List[(T, T)]): Unit
+  def update(deltas: List[(T, T)]): Unit
 
 }

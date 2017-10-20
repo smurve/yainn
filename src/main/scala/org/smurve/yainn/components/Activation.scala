@@ -19,5 +19,8 @@ case class Activation(Phi: T => T, Phi_prime: T => T) extends AbstractLayer {
     * @return The cost's total derivative up until this layer
     */
   override def dC_dy(x: T, dC_dy_from_next: T): T = dC_dy_from_next * Phi_prime(x)
+
+  override def update(deltas: List[(T, T)]): Unit = next.update(deltas)
+
 }
 

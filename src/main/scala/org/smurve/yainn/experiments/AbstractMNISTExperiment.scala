@@ -46,7 +46,7 @@ class AbstractMNISTExperiment extends Logging {
 
   /**
     * create an arbitrary-length network of ReLU-activated affine layers
-    * Pls forgive me and consider the recklessly functional style a recreational exercise...;-)
+    * Pls forgive me and consider the ruthlessly functional style a recreational exercise...;-)
     * @param seed an rng seed
     * @param dims dimensions of the layers: 1st is x, last is y
     * @return a multilayer network

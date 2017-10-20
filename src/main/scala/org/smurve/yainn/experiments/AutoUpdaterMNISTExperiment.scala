@@ -2,28 +2,29 @@ package org.smurve.yainn.experiments
 
 import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
-import org.smurve.yainn.helpers.SGDTrainer
+import org.smurve.yainn.components.{AutoUpdatingAffine, Output}
+import org.smurve.yainn.helpers.{AdjustableAffineParameters, SGDTrainer}
+import org.smurve.yainn._
 
 import scala.language.postfixOps
 
 
 /**
-  * The inevitable, ubiquitous MNIST show case from ND4J/ND4S bricks and mortar
   * Run this without any arguments to see how
   * a) data is loaded from the MNIST-provided files
   * b) a network is created consisting of affine (dense, or fully connected) layers and appropriate activation functions
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
   */
-object HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object AutoUpdaterMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
     /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 10
-      override val ETA = 1e-3  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      override val NUM_EPOCHS = 5
+      override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** read data from disk */
@@ -31,7 +32,13 @@ object HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Logging 
 
 
     /** stack some layers to form a network - check out this method! */
-    val nn = createNetwork(params.SEED, 784, 1600, 200, 10)
+    val nn = AutoUpdatingAffine("Input", new AdjustableAffineParameters(784, 1600, params.ETA, params.SEED)) !!
+      Relu() !!
+      AutoUpdatingAffine("Hidden1", new AdjustableAffineParameters(1600, 200, params.ETA, params.SEED)) !!
+      Relu() !!
+      AutoUpdatingAffine("Hidden2", new AdjustableAffineParameters(200, 10, params.ETA, params.SEED)) !!
+      Sigmoid() !!
+      Output(euc, euc_prime)
 
 
     /** see that the network cannot yet do anything useful without training */
