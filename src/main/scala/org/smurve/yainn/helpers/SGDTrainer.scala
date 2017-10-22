@@ -7,9 +7,15 @@ import org.smurve.yainn.experiments.HiddenLayersMNISTExperiment.{printstats, suc
 import org.smurve.yainn.experiments.Params
 import org.smurve.yainn.timed
 
-class SGDTrainer ( nn: Layer) {
+/**
+  * SGD trainer that can train a network with more than one entry layer
+  * Different entry layers may represent different preprocessers, like shift, skew, scale that multiply the input data
+  *
+  * @param nns a list of entry layers to feed, the first is going to be used for testing
+  */
+class SGDTrainer(nns: List[Layer]) {
 
-  def train( iterator: DataIterator, params: Params ) {
+  def train(iterator: DataIterator, params: Params) {
 
     val testSet = iterator.newTestData(params.TEST_SIZE)
 
@@ -19,21 +25,22 @@ class SGDTrainer ( nn: Layer) {
       while (iterator.hasNext) { // for all mini-batches
         val (trainingImages, trainingLabels) = iterator.nextMiniBatch()
 
-        /** forward-backward pass through the entire network, the entire batch in a single go, and measure time */
-        val (res, time) = timed(nn.fbp(trainingImages, trainingLabels))
-        val BackPack(cost, _, grads) = res
-        duration += time //
+        for (nn <- nns) {
+          /** forward-backward pass through the entire network, the entire batch in a single go, and measure time */
+          val (res, time) = timed(nn.fbp(trainingImages, trainingLabels, trainingImages))
+          val BackPack(cost, _, grads) = res
+          duration += time //
 
-        /** multiply all gradients by a common learning rate and update the gradients with it */
-        val deltas = grads.map({ case (grad_bias, grad_weight) =>
-          (grad_bias * params.ETA, grad_weight * params.ETA)
-        })
-        nn.update(deltas)
-
-        if (!iterator.hasNext) {
-          /** Do some stats at the end of each epoch */
-          println(s"Epoch Nr. $e, after ${params.NUM_BATCHES} batches: Cost=$cost")
-          printstats(deltas)
+          /** multiply all gradients by a common learning rate and update the gradients with it */
+          val deltas = grads.map({ case (grad_bias, grad_weight) =>
+            (grad_bias * params.ETA, grad_weight * params.ETA)
+          })
+          nn.update(deltas)
+          if (!iterator.hasNext) {
+            /** Do some stats at the end of each epoch */
+            println(s"Epoch Nr. $e, after ${params.NUM_BATCHES} batches: Cost=$cost")
+            printstats(deltas)
+          }
         }
       }
       iterator.reset()
@@ -41,7 +48,7 @@ class SGDTrainer ( nn: Layer) {
       /** restart from the first mini-batch */
 
       /** validate the networks performance with the help of the test set */
-      val successRate = successCount(nn, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
+      val successRate = successCount(nns.head, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
       println(s"Net learning time: $duration ms, Sucess rate: $successRate")
     }
   }

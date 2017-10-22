@@ -26,7 +26,7 @@ class ActivationLayerSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "support backpropagation by providing cost and dC_dy" in {
-    activation().fbp(t(2), t(2)) shouldEqual BackPack(2, t(8), Nil)
+    activation().fbp(t(2), t(2), t(2)) shouldEqual BackPack(2, t(8), Nil)
   }
 
   it should "support dC_dy" in {

@@ -28,9 +28,10 @@ trait Layer {
     * Forward and backward pass in one go
     * @param x the input value
     * @param yb y_bar, the given true classification (label) for the input value x
+    * @param orig_x the original image to allow auto-encoding at any layer
     * @return a structure holding the backprop artifacts
     */
-  def fbp(x: T, yb: T): BackPack
+  def fbp(x: T, yb: T, orig_x: T): BackPack
 
   /**
     * @throws UnsupportedOperationException if there's no next layer

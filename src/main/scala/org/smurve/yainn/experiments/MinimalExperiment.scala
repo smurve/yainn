@@ -37,7 +37,7 @@ object MinimalExperiment {
 
         val (trainingImages, trainingLabels) = data.nextMiniBatch()
 
-        val BackPack(cost, _, grads) = nn.fbp(trainingImages, trainingLabels)
+        val BackPack(cost, _, grads) = nn.fbp(trainingImages, trainingLabels, trainingImages)
         val deltas = grads.map(p => {
           (p._1 * ETA, p._2 * ETA)
         })

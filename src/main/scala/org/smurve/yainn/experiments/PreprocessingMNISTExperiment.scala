@@ -42,7 +42,7 @@ object PreprocessingMNISTExperiment extends AbstractMNISTExperiment with Logging
 
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(nn).train(iterator, params)
+    new SGDTrainer(List(nn)).train(iterator, params)
 
 
     /** Demonstrate the network's capabilities */

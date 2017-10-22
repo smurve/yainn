@@ -3,13 +3,14 @@ package org.smurve.yainn.components
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4s.Implicits._
 import org.smurve.yainn.T
-import org.smurve.yainn.helpers.AdjustableAffineParameters
+import org.smurve.yainn.helpers.AffineParameters
 
 /**
-  * A layer representing and affine function
+  * A layer representing and affine function that updates automatically after each call to fbp()
+  * Note that this layer considers a potential cost that may come from the weights.
   * @param p adjustable parameters
   */
-case class AutoUpdatingAffine(name: String, p: AdjustableAffineParameters ) extends AbstractLayer {
+case class AutoUpdatingAffine(name: String, p: AffineParameters ) extends AbstractLayer {
 
   def func(x: T): T = {
     h(p.b, p.W) ** v1(x)
@@ -21,18 +22,18 @@ case class AutoUpdatingAffine(name: String, p: AdjustableAffineParameters ) exte
     * @param yb y_bar, the given true classification (label) for the input value x
     * @return a structure holding the backprop artifacts
     */
-  override def fbp(x: T, yb: T): BackPack = {
-    val from_next = next.fbp(func(x), yb)
+  override def fbp(x: T, yb: T, orig_x: T): BackPack = {
+    val from_next = next.fbp(func(x), yb, orig_x)
     val dCdy = dC_dy(x, from_next.dC_dy)
-    p.update(grads(x, from_next.dC_dy).get)
+    p.update(grads(x, from_next.dC_dy).get )
 
     BackPack(
-      from_next.C,
+      from_next.C + p.cost,
       dCdy,
       from_next.grads)
   }
 
-  override def grads(x: T, dC_dy: T): Option[(T, T)] = Some((dC_dy ** x.T, dC_dy.sum(1)))
+  override def grads(x: T, dC_dy: T): Option[(T, T)] = Some((dC_dy ** x.T + p.dC_dw, dC_dy.sum(1)))
 
   override def dC_dy(x: T, dC_dy_from_next: T): T = p.W.T ** dC_dy_from_next
 

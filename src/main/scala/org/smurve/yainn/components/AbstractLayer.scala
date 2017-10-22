@@ -20,8 +20,8 @@ abstract class AbstractLayer extends Layer {
     this
   }
 
-  def fbp(x: T, yb: T): BackPack = {
-    val from_next = next.fbp(func(x), yb)
+  def fbp(x: T, yb: T, orig_x: T): BackPack = {
+    val from_next = next.fbp(func(x), yb, orig_x)
     BackPack(
       from_next.C,
       dC_dy(x, from_next.dC_dy),

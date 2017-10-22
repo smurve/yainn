@@ -34,7 +34,7 @@ class AffineLayerSpec extends FlatSpec with ShouldMatchers {
     val dC_dy = t(-5,-4)
     val gradW = t(-2, -3, 4, 6).reshape(2,2)
     val gradb = t(-1, 2)
-    dense().fbp(t(2,3), t(10,-10)) shouldEqual BackPack(cost, dC_dy, List((gradW, gradb)))
+    dense().fbp(t(2,3), t(10,-10), t(2,3)) shouldEqual BackPack(cost, dC_dy, List((gradW, gradb)))
   }
 
   it should "support dC_dy" in {

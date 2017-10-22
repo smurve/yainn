@@ -35,7 +35,7 @@ object PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
     val nn = createNetwork(params.SEED, 784, 1600, 200, 10)
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(nn).train(iterator, params)
+    new SGDTrainer(List(nn)).train(iterator, params)
 
 
     val eta_x = 10
@@ -50,7 +50,7 @@ object PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
 
       /** fit the white noise to produce a particular classification */
       while (euc(nn.fp(number), yb) > 3e-4) { // just some reasonable threshold
-        val dC_dx = nn.fbp(number, yb).dC_dy // fwd-bwd pass to retrieve dC_dy (which is dC_dx here...)
+        val dC_dx = nn.fbp(number, yb, number).dC_dy // fwd-bwd pass to retrieve dC_dy (which is dC_dx here...)
         number.subi(dC_dx * eta_x) // gradient descent: adjust the image a little bit
       }
 

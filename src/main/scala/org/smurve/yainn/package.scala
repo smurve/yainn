@@ -170,4 +170,15 @@ package object yainn {
     */
   def sharpen(x: T, cut: Double): T = relu(x - cut)
 
+
+  /**
+    *
+    */
+  def shiftOp( n: Int, shiftBy: Int ): T = {
+    val res = Nd4j.zeros(n, n)
+    for { i <- 0 until n if i+shiftBy >= 0 && i+ shiftBy < n}{
+      res(i, i+shiftBy) = 1.0
+    }
+    res
+  }
 }

@@ -64,7 +64,7 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
     val nn1 = Affine("Dense", W1, b1) !! Affine("Dense", W2, b2) !! Sigmoid() !! Output(euc, euc_prime)
 
     /** Train the network to reproduce any image from its lower-dim intermediate encoding */
-    new SGDTrainer(nn1).train(aeIterator, params1)
+    new SGDTrainer(List(nn1)).train(aeIterator, params1)
 
     val x = aeIterator.newTestData(1)._1
     val y = nn1.fp(x)
@@ -87,7 +87,7 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
     val nn2 = Affine("Dense", W1, b1) !! Relu() !!  Affine("Dense", W3, b3) !! Relu() !! Affine("Dense", W4, b4) !! Sigmoid() !! Output(euc, euc_prime)
 
     /** this network achieves 94.5% with fairly small layers 784 x 128 x 200 x 10 */
-    new SGDTrainer(nn2).train(iterator, params2)
+    new SGDTrainer(List(nn2)).train(iterator, params2)
 
     predict(nn2, iterator.newTestData(params2.N_DEMO))
 

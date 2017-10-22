@@ -12,7 +12,7 @@ case class Output(C: (T, T) => Double, derivC: (T, T) => T) extends Layer {
 
   def func(x: T): T = x
   def fp(x: T): T = x
-  def fbp(y: T, yb: T): BackPack = BackPack(C(y, yb), derivC(y, yb), Nil)
+  def fbp(y: T, yb: T, orig_x: T): BackPack = BackPack(C(y, yb), derivC(y, yb), Nil)
 
   def !!(next: Layer): Layer = unsupported
   override def next: Layer = unsupported

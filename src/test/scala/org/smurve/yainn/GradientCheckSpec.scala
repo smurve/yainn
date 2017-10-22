@@ -47,7 +47,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   "A minimal neural network" should "compute numerically plausible gradients in the first layer's weights" in {
 
-    val grads0 = nn(W0, b0, W1, b1).fbp(x2, yb2).grads.head
+    val grads0 = nn(W0, b0, W1, b1).fbp(x2, yb2, x2).grads.head
 
     // We iterate through all indices of W0
     for (r <- 0 until N_h; c <- 0 until N_x) {
@@ -60,7 +60,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val nn_r = Affine("", wr, b0) !! tail
 
       // it's like comparing two networks and seeing which one's better!
-      val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
+      val gradW_num = (nn_r.fbp(x2, yb2, x2).C - nn_l.fbp(x2, yb2, x2).C) / 2 / epsilon
 
       gradW_num shouldEqual grads0._1.getDouble(r, c)
     }
@@ -68,7 +68,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   "A minimal neural network" should "compute numerically plausible gradients in the first layer's bias" in {
 
-    val grads0 = nn(W0, b0, W1, b1).fbp(x2, yb2).grads.head
+    val grads0 = nn(W0, b0, W1, b1).fbp(x2, yb2, x2).grads.head
 
     // We iterate through all indices of b0
     for (r <- 0 until N_h) {
@@ -81,7 +81,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val nn_r = Affine("", W0, br) !! tail
 
       // it's like comparing two networks and seeing which one's better!
-      val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
+      val gradW_num = (nn_r.fbp(x2, yb2, x1).C - nn_l.fbp(x2, yb2, x2).C) / 2 / epsilon
 
       gradW_num shouldEqual grads0._2.getDouble(r)
     }
@@ -89,7 +89,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   "A minimal neural network" should "compute numerically plausible gradients in the hidden layer's weights" in {
 
-    val grads1 = nn(W0, b0, W1, b1).fbp(x2, yb2).grads(1)
+    val grads1 = nn(W0, b0, W1, b1).fbp(x2, yb2, x2).grads(1)
     // We iterate through all indices of W1
     for (r <- 0 until N_y; c <- 0 until N_h) {
 
@@ -101,7 +101,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val nn_r = Affine("", W0, b0) !! Sigmoid() !! Affine("", wr, b1) !! Sigmoid() !! Output(euc, euc_prime)
 
       // it's like comparing two networks and choosing the better one
-      val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
+      val gradW_num = (nn_r.fbp(x2, yb2, x2).C - nn_l.fbp(x2, yb2, x2).C) / 2 / epsilon
 
       gradW_num shouldEqual grads1._1.getDouble(r, c)
     }
@@ -109,7 +109,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   "A minimal neural network" should "compute numerically plausible gradients in the hidden layer's bias" in {
 
-    val grads1 = nn(W0, b0, W1, b1).fbp(x2, yb2).grads(1)
+    val grads1 = nn(W0, b0, W1, b1).fbp(x2, yb2, x2).grads(1)
     // We iterate through all indices of W1
     for (r <- 0 until N_y) {
 
@@ -121,7 +121,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val nn_r = Affine("", W0, b0) !! Sigmoid() !! Affine("", W1, br) !! Sigmoid() !! Output(euc, euc_prime)
 
       // it's like comparing two networks and choosing the better one
-      val gradW_num = (nn_r.fbp(x2, yb2).C - nn_l.fbp(x2, yb2).C) / 2 / epsilon
+      val gradW_num = (nn_r.fbp(x2, yb2, x2).C - nn_l.fbp(x2, yb2, x2).C) / 2 / epsilon
 
       gradW_num shouldEqual grads1._2.getDouble(r)
     }
@@ -136,7 +136,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
     * Numerical gradient computation suffers from the "difference of large numbers" problem, thus a deviation
     * of anything below 1% is just fine.
     */
-  implicit val doubleEq: Equality[Double] = new Equality[Double] {
+  implicit lazy val doubleEq: Equality[Double] = new Equality[Double] {
     override def areEqual(a: Double, b: Any): Boolean =
       math.abs(a - b.asInstanceOf[Double]) / (math.abs(a + b.asInstanceOf[Double]) + 1e-20) < 0.01
   }

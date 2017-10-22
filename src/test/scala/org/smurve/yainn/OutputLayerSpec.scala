@@ -28,7 +28,7 @@ class OutputLayerSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "support backpropagation by providing cost and dC_dy" in {
-    output.fbp(t(3), t(2)) shouldEqual BackPack(0.5, t(1), Nil)
+    output.fbp(t(3), t(2), t(3)) shouldEqual BackPack(0.5, t(1), Nil)
   }
 
   it should "not support the !! operator" in {
