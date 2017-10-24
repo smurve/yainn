@@ -3,7 +3,7 @@ package org.smurve.yainn.experiments
 import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn.components.{AutoEncoderFork, AutoUpdatingAffine, Output}
-import org.smurve.yainn.helpers.{AffineParameters, SGDTrainer}
+import org.smurve.yainn.helpers.{L2RegAffineParameters, SGDTrainer}
 import org.smurve.yainn._
 
 import scala.language.postfixOps
@@ -26,28 +26,28 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
     /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 200
+      override val NUM_EPOCHS = 20
       override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
       val ETA_AE = 1e-5
-      val ALPHA = 1e-1 // L2 regularization factor
+      val ALPHA = 1e-1 // L2 regularization factor for layer 1
     }
 
     /** read data from disk */
     val iterator = createIterator(params)
 
     val ae_tail =
-      AutoUpdatingAffine("AE_Tail", new AffineParameters(200, 784, params.ETA_AE, params.ALPHA, params.SEED)) !!
+      AutoUpdatingAffine("AE_Tail", new L2RegAffineParameters(200, 784, params.ETA_AE, 0.0, params.SEED)) !!
       Output(euc, euc_prime)
 
 
     /** stack some layers to form a network - check out this method! */
     val nn =
-      AutoUpdatingAffine("Input", new AffineParameters(784, 200, params.ETA_AE, params.ALPHA, params.SEED)) !!
+      AutoUpdatingAffine("Input", new L2RegAffineParameters(784, 200, params.ETA_AE, params.ALPHA, params.SEED)) !!
       AutoEncoderFork(ae_tail, .5) !!
       Relu() !!
-      AutoUpdatingAffine("Hidden1", new AffineParameters(200, 100, params.ETA, params.ALPHA, params.SEED)) !!
+      AutoUpdatingAffine("Hidden1", new L2RegAffineParameters(200, 100, params.ETA, 0.0, params.SEED)) !!
       Relu() !!
-      AutoUpdatingAffine("Hidden2", new AffineParameters(100, 10, params.ETA, params.ALPHA, params.SEED)) !!
+      AutoUpdatingAffine("Hidden2", new L2RegAffineParameters(100, 10, params.ETA, 0.0, params.SEED)) !!
       Sigmoid()!!
       Output(euc, euc_prime)
 
