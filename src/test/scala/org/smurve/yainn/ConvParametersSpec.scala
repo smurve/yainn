@@ -26,7 +26,7 @@ class ConvParametersSpec extends FlatSpec with ShouldMatchers {
   "A ConvParameters" should "create correct convolution matrices" in {
 
 
-    val params = new ConvParameters(2, 2, 4, 4, fields, 1)
+    val params = new ConvParameters(2, 2, 4, 4, fields, 1, 0.0)
 
     val res = params.W ** input
 

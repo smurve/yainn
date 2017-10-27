@@ -18,16 +18,14 @@ import scala.language.postfixOps
   * d) the trained network successfully classifies most of the images in the test set
   * e) slow things become when convolutional layers are implemented the "naive" way.
   */
-object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object InvarianceMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
     /** Overriding the default parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 2000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-
-      // 50 epochs get you up to 90%, 200 epochs up to 96.x
-      override val NUM_EPOCHS = 50
+      override val NUM_EPOCHS = 500
       override val ETA = 3e-4 //
     }
 
@@ -36,14 +34,13 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", ConvParameters(5, 5, 14, 14, 50, 1e-3, 0.3, params.SEED)) !!
+        AutoUpdatingConv("Conv", ConvParameters(10, 8, 14, 14, 20, 1e-3, 0.05, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(5000, 1000, 1e-4, 0.1, params.SEED)) !!
+        AutoUpdatingAffine("affine3", new L2RegAffineParameters(700, 100, 1e-3, 0.05, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 100, 3e-4, 0.1, params.SEED)) !!
-        Relu() !!
-        AutoUpdatingAffine("affine3", new L2RegAffineParameters(100, 10, 1e-5, 0.1, params.SEED)) !!
+        AutoUpdatingAffine("affine3", new L2RegAffineParameters(100, 10, 1e-3, 0.0, params.SEED)) !!
         Sigmoid() !! Output(euc, euc_prime)
+
 
 
     /** see that the network cannot yet do anything useful without training */
@@ -51,12 +48,13 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
     val successRate = successCount(nn, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
     info(s"Sucess rate before training: $successRate")
 
-
     /** Use gradient descent to train the network */
     new SGDTrainer(List(nn)).train(iterator, params)
 
-
     /** Demonstrate the network's capabilities */
     predict(nn, iterator.newTestData(params.N_DEMO))
+
   }
+
+
 }

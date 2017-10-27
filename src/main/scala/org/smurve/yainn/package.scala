@@ -181,4 +181,26 @@ package object yainn {
     }
     res
   }
+
+  /**
+    * experimental helpers
+    */
+  def ybt ( yb: T, m: Int): T = {
+    val ym = t(0,1,2,3,4,5,6,7,8,9) === m
+    val n = yb.size(1)
+    val d = yb.size(0)
+    val pro = ym.T ** yb
+    val con = Nd4j.ones(n) - pro
+    ym ** pro + (Nd4j.ones(d) - ym) ** con * 1.0 / (d - 1)
+  }
+
+
+  def euc_n (n: Int)( y: T, yb: T ) : Double = {
+    euc ( y, ybt(yb, n))
+  }
+
+  def euc_n_prime (n: Int)( y: T, yb: T ) : T = {
+    euc_prime( y, ybt(yb, n))
+  }
+
 }

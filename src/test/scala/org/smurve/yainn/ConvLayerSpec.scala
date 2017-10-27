@@ -1,10 +1,10 @@
 package org.smurve.yainn
 
 import org.nd4j.linalg.factory.Nd4j
-import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.smurve.yainn.components.{Affine, AutoUpdatingConv, BackPack, Output}
-import org.smurve.yainn.helpers.ConvParameters
 import org.nd4s.Implicits._
+import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.smurve.yainn.components.{Affine, AutoUpdatingConv, Output}
+import org.smurve.yainn.helpers.ConvParameters
 
 class ConvLayerSpec extends FlatSpec with ShouldMatchers {
 
@@ -31,7 +31,7 @@ class ConvLayerSpec extends FlatSpec with ShouldMatchers {
     val b = t(0, 0)
     val W = Nd4j.ones(2, 18)
 
-    val params = ConvParameters(2,2, 4, 4, fields, 1e-6)
+    val params = ConvParameters(2,2, 4, 4, fields, 1e-6, 0.0)
 
     val nn = AutoUpdatingConv("conv", params) !! Affine("hidden", W, b) !! Output(euc, euc_prime)
 

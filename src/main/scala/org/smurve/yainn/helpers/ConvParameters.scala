@@ -12,7 +12,7 @@ import org.nd4s.Implicits._
   * @param w_Input the width of the input image
   * @param fields  the fields in a single vector, side by side
   */
-case class ConvParameters(h_Field: Int, w_Field: Int, h_Input: Int, w_Input: Int, fields: T, eta: Double) extends SmartParameters {
+case class ConvParameters(h_Field: Int, w_Field: Int, h_Input: Int, w_Input: Int, fields: T, eta: Double, alpha: Double) extends SmartParameters {
 
   require(fields.size(0) % (h_Field * w_Field) == 0, "fields size not consistent")
 
@@ -60,19 +60,15 @@ case class ConvParameters(h_Field: Int, w_Field: Int, h_Input: Int, w_Input: Int
   /**
     * Parameters may come at a cost, here the sum of the squared weights.
     * This is called L2 regularization. Note that the bias does not incur any cost
-    *
-    * @return zero: No cost here
+    * @return the L2 based cost
     */
-  override def cost: Double = 0.0
+  override def cost: Double = (W * W).sumT * 0.5 * alpha
 
   /**
     * The derivative of the cost is obviously the weight matrix itself.
-    *
-    * @return zeros, no cost here
+    * @return the cost derivative
     */
-  override def dC_dw: T = {
-    Nd4j.zeros(W.size(0), W.size(1))
-  }
+  override def dC_dw: T = W * alpha
 }
 
 object ConvParameters {
@@ -87,9 +83,9 @@ object ConvParameters {
     * @param seed a random seed
     * @return A ConvParameters instance
     */
-  def apply(h_Field: Int, w_Field: Int, h_Input: Int, w_Input: Int, n_Fields: Int, eta: Double, seed: Long): ConvParameters = {
+  def apply(h_Field: Int, w_Field: Int, h_Input: Int, w_Input: Int, n_Fields: Int, eta: Double, alpha: Double, seed: Long): ConvParameters = {
     val fields = (Nd4j.rand(seed, n_Fields * h_Field * w_Field) - 0.5) / 100
-    new ConvParameters(h_Field, w_Field, h_Input, w_Input, fields.T, eta)
+    new ConvParameters(h_Field, w_Field, h_Input, w_Input, fields.T, eta, alpha)
   }
 
 }

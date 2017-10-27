@@ -40,7 +40,7 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
       Output(euc, euc_prime)
 
 
-    /** stack some layers to form a network - check out this method! */
+    /** stack some layers to form a network */
     val nn =
       AutoUpdatingAffine("Input", new L2RegAffineParameters(784, 200, params.ETA_AE, params.ALPHA, params.SEED)) !!
       AutoEncoderFork(ae_tail, .5) !!

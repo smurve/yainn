@@ -5,7 +5,8 @@ import org.nd4j.linalg.ops.transforms.Transforms._
 import org.nd4s.Implicits._
 import org.scalactic.Equality
 import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.smurve.yainn.components.{Activation, Affine, Layer, Output}
+import org.smurve.yainn.components.{AutoUpdatingConv, _}
+import org.smurve.yainn.helpers.ConvParameters
 
 /**
   * Gradient checking is an important quality gate in optimization attempts. Here we do the check with a tiny network with
@@ -23,10 +24,6 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   def Sigmoid() = Activation(sigmoid, sigmoid_prime)
 
-  def euc(x: T, x0: T): Double = ((x - x0).T ** (x - x0)).getDouble(0) * 0.5
-
-  def euc_prime(x: T, x0: T): T = x - x0
-
   /** Some test data */
   val W0: T = t(1, 2, 3, 4, .2, .3, .4, .5, .1, -.3, .4, -.5).reshape(N_h, N_x)
   val b0: T = t(.2, -1, .3)
@@ -38,11 +35,11 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
   val yb1: T = t(1, 0) // a label saying: cross
   val yb2: T = t(0, 1) // a label saying: diamond
 
-  // the full network
-  def nn(W0: T, b0: T, W1: T, b1: T): Layer = Affine("", W0, b0) !! tail
-
   // the sub-network without the first affine layer
   val tail: Layer = Sigmoid() !! Affine("", W1, b1) !! Sigmoid() !! Output(euc, euc_prime)
+
+  // the full network
+  def nn(W0: T, b0: T, W1: T, b1: T): Layer = Affine("", W0, b0) !! tail
 
 
   "A minimal neural network" should "compute numerically plausible gradients in the first layer's weights" in {
@@ -128,6 +125,58 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   }
 
+  "A convolutional neural network" should "compute numerically plausible gradients for multiple fields and images" in {
+
+    val fields = t(
+      1,2,
+      2,3,
+      3,4,
+      2,3,
+      3,4,
+      4,5)
+    val params = ConvParameters(3, 2, 4, 4, fields, 0.0, 0.0)
+
+    val nn = AutoUpdatingConv("conv", params) !! Output(euc, euc_prime)
+    val x0 = t(
+      1,2,3,4,
+      2,3,4,5,
+      3,4,5,6,
+      4,5,6,7,
+      4,5,6,7,
+      3,4,5,6,
+      2,3,4,5,
+      1,2,3,4)
+
+    val x = x0.T.reshape(2, 16).T
+
+    // Output 2 feature maps of size 2x3 for each of 2 images = 24 values
+    val yb = t(
+      1,0,0,0,0,0,1,0,0,0,0,0,
+      0,1,0,0,0,0,0,0,1,0,0,0).T.reshape(2,12).T
+
+    val grads = nn.fbp(x, yb, x).grads.head
+
+    for {
+      r <- 0 until 12
+    } {
+
+      // get 2 matrices with slightly tweaked parameter at that position
+      val (fl, fr) = blr(fields, r, epsilon)
+
+      // networks with slightly changed paramters
+      val p_l = ConvParameters(3, 2, 4, 4, fl, 0.0, 0.0)
+      val nn_l = AutoUpdatingConv("convl", p_l) !! Output(euc, euc_prime)
+      val p_r = ConvParameters(3, 2, 4, 4, fr, 0.0, 0.0)
+      val nn_r = AutoUpdatingConv("convr", p_r) !! Output(euc, euc_prime)
+
+      // it's like comparing two networks and choosing the better one
+      val gradW_num = (nn_r.fbp(x, yb, x).C - nn_l.fbp(x, yb, x).C) / 2 / epsilon
+
+      gradW_num shouldEqual grads._1.getDouble(r)
+    }
+
+  }
+
   /******************************************************************************
    *                  Helpers
    ******************************************************************************/
@@ -152,10 +201,10 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
   }
 
   /**
-    * vector pairs plus/minus a little epsilon from the original at row r, col c
+    * column vector pairs plus/minus a little epsilon from the original at row r
     */
-  def blr(W: T, i: Int, epsilon: Double): (T, T) = {
-    Wlr(W, i, 0, epsilon)
+  def blr(b: T, r: Int, epsilon: Double): (T, T) = {
+    Wlr(b, r, 0, epsilon)
   }
 
 
