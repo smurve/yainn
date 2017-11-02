@@ -12,9 +12,12 @@ case class Output(C: (T, T) => Double, derivC: (T, T) => T) extends Layer {
 
   def func(x: T): T = x
   def fp(x: T): T = x
-  def fbp(y: T, yb: T, orig_x: T): BackPack = BackPack(C(y, yb), derivC(y, yb), Nil)
+  def fbp(y: T, yb: T, orig_x: T, update: Boolean = false ): BackPack = BackPack(C(y, yb), derivC(y, yb), Nil)
+
+  def ::(prev: Layer): Layer = prev !! this
 
   def !!(next: Layer): Layer = unsupported
+  def append ( subs: Layer ): Layer = unsupported
   override def next: Layer = unsupported
   override def grads(x: T, dC_dy: T): Option[(T,T)] = unsupported
   override def dC_dy(x: T, dC_dy: T): T = unsupported

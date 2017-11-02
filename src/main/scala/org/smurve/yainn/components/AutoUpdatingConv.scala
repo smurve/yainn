@@ -2,7 +2,7 @@ package org.smurve.yainn.components
 
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4s.Implicits._
-import org.smurve.yainn.T
+import org.smurve.yainn._
 import org.smurve.yainn.helpers.ConvParameters
 
 /**
@@ -24,11 +24,14 @@ case class AutoUpdatingConv(name: String, p: ConvParameters) extends AbstractLay
     * @param yb y_bar, the given true classification (label) for the input value x
     * @return a structure holding the backprop artifacts
     */
-  override def fbp(x: T, yb: T, orig_x: T): BackPack = {
-    val from_next = next.fbp(func(x), yb, orig_x)
+  override def fbp(x: T, yb: T, orig_x: T, update: Boolean = true): BackPack = {
+    val from_next = next.fbp(func(x), yb, orig_x, update)
     val dCdy = dC_dy(x, from_next.dC_dy)
+
     val myGrads = grads(x, from_next.dC_dy).get
-    p.update(myGrads)
+    if ( update ) {
+      p.update(myGrads)
+    }
 
     BackPack(
       from_next.C + p.cost,
@@ -63,10 +66,5 @@ case class AutoUpdatingConv(name: String, p: ConvParameters) extends AbstractLay
   override def update(listOfDeltas: List[(T, T)]): Unit = {
     next.update(listOfDeltas)
   }
-
-
-  def v1(x: T): T = Nd4j.hstack(Nd4j.ones(x.columns).T, x.T).T
-
-  def h(b: T, W: T): T = Nd4j.hstack(b, W)
 }
 

@@ -22,7 +22,7 @@ object HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Logging 
     /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 10
+      override val NUM_EPOCHS = 30
       override val ETA = 1e-3  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
@@ -31,7 +31,7 @@ object HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Logging 
 
 
     /** stack some layers to form a network - check out this method! */
-    val nn = createNetwork(params.SEED, 784, 1600, 200, 10)
+    val nn = createNetwork(params.SEED, 784, 1600, 800, 400, 200, 10)
 
 
     /** see that the network cannot yet do anything useful without training */

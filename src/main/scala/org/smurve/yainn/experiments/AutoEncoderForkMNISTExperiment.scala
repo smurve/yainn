@@ -26,7 +26,7 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
     /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 20
+      override val NUM_EPOCHS = 10
       override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
       val ETA_AE = 1e-5
       val ALPHA = 1e-1 // L2 regularization factor for layer 1
@@ -40,17 +40,21 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
       Output(euc, euc_prime)
 
 
-    /** stack some layers to form a network */
-    val nn =
-      AutoUpdatingAffine("Input", new L2RegAffineParameters(784, 200, params.ETA_AE, params.ALPHA, params.SEED)) !!
-      AutoEncoderFork(ae_tail, .5) !!
-      Relu() !!
-      AutoUpdatingAffine("Hidden1", new L2RegAffineParameters(200, 100, params.ETA, 0.0, params.SEED)) !!
-      Relu() !!
-      AutoUpdatingAffine("Hidden2", new L2RegAffineParameters(100, 10, params.ETA, 0.0, params.SEED)) !!
-      Sigmoid()!!
+    val input = AutoUpdatingAffine("Input", new L2RegAffineParameters(784, 200, params.ETA_AE, params.ALPHA, params.SEED))
+    val tail =
+      Relu() ::
+      AutoUpdatingAffine("Hidden1", new L2RegAffineParameters(200, 100, params.ETA, 0.0, params.SEED)) ::
+      Relu() ::
+      AutoUpdatingAffine("Hidden2", new L2RegAffineParameters(100, 10, params.ETA, 0.0, params.SEED)) ::
+      Sigmoid() ::
       Output(euc, euc_prime)
 
+
+    /** stack some layers to form a network */
+    val nn =
+      input ::
+      AutoEncoderFork(ae_tail, .5) ::
+      tail
 
     /** see that the network cannot yet do anything useful without training */
     val testSet = iterator.newTestData(params.TEST_SIZE)
@@ -64,5 +68,9 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
 
     /** Demonstrate the network's capabilities */
     predict(nn, iterator.newTestData(params.N_DEMO))
+
+    /** can't use the auto-encoder here, don't need to, anyway */
+    displayPerfectDigits(input :: tail, 1e-0, 100, params.SEED)
+
   }
 }

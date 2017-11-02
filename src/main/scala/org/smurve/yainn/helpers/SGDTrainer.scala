@@ -15,7 +15,7 @@ import org.smurve.yainn.timed
   */
 class SGDTrainer(nns: List[Layer]) {
 
-  def train(iterator: DataIterator, params: Params) {
+  def train(iterator: DataIterator, params: Params, verbose: Boolean = true ) {
 
     val testSet = iterator.newTestData(params.TEST_SIZE)
 
@@ -36,7 +36,7 @@ class SGDTrainer(nns: List[Layer]) {
             (grad_bias * params.ETA, grad_weight * params.ETA)
           })
           nn.update(deltas)
-          if (!iterator.hasNext) {
+          if (!iterator.hasNext && verbose ) {
             /** Do some stats at the end of each epoch */
             println(s"Epoch Nr. $e, after ${params.NUM_BATCHES} batches: Cost=$cost")
             printstats(deltas)

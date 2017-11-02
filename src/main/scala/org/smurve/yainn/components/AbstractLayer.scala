@@ -15,13 +15,22 @@ abstract class AbstractLayer extends Layer {
 
   def next: Layer = rhs.get
 
-  def !!(other: Layer): Layer = {
-    rhs = rhs.map(_ !! other).orElse(Some(other))
+  def !!(nextLayer: Layer): Layer = {
+    rhs = rhs.map(_ !! nextLayer).orElse(Some(nextLayer))
     this
   }
 
-  def fbp(x: T, yb: T, orig_x: T): BackPack = {
-    val from_next = next.fbp(func(x), yb, orig_x)
+  def ::(previous: Layer): Layer = {
+    previous.append(this)
+  }
+
+  def append( subs: Layer ): Layer = {
+    rhs = Some(subs)
+    this
+  }
+
+  def fbp(x: T, yb: T, orig_x: T, update: Boolean): BackPack = {
+    val from_next = next.fbp(func(x), yb, orig_x, update)
     BackPack(
       from_next.C,
       dC_dy(x, from_next.dC_dy),

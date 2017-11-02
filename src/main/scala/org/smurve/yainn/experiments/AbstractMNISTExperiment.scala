@@ -7,6 +7,7 @@ import org.nd4s.Implicits._
 import org.smurve.yainn._
 import org.smurve.yainn.components.{Affine, Layer, Output}
 import org.smurve.yainn.data.{MNISTDataIterator, MNISTFileLoader}
+import org.nd4j.linalg.ops.transforms.Transforms._
 
 import scala.language.postfixOps
 
@@ -118,4 +119,33 @@ class AbstractMNISTExperiment extends Logging {
     equiv(nn.fp(testSet._1), testSet._2)
 
 
+  /**
+    * derive 'perfect' digits by optimizing white noise, until it is recognized as one of the images
+    */
+  def displayPerfectDigits(nn: Layer, eta: Double, nmax: Int, seed: Long): Unit = {
+    for ( i<- 0 to 9) {
+
+      /** just some white noise */
+      var digit = Nd4j.rand(seed, 784).T / 100
+
+      /** pre-define the desired classification */
+      val yb = t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      yb(i) = 1.0
+
+      /** fit the white noise to produce a particular classification */
+      for  {
+        _ <- 1 to nmax if euc(nn.fp(digit), yb) > 1e-2
+      } {
+        val c = euc(nn.fp(digit), yb)
+        //println(s"Cost: $c")
+        val dC_dx = nn.fbp(digit, yb, digit, update = false).dC_dy // fwd-bwd pass to retrieve dC_dy (which is dC_dx here...)
+        digit = relu(digit - dC_dx * eta)// gradient descent: adjust the image a little bit
+      }
+      val scale = 1.0 / (digit.maxNumber().doubleValue()+1e-6)
+
+      /** see that the network recognizes its own piece of art */
+      predict(nn, (digit * scale, yb))
+    }
+
+  }
 }

@@ -29,9 +29,10 @@ trait Layer {
     * @param x the input value
     * @param yb y_bar, the given true classification (label) for the input value x
     * @param orig_x the original image to allow auto-encoding at any layer
+    * @param update: whether to auto-update or not
     * @return a structure holding the backprop artifacts
     */
-  def fbp(x: T, yb: T, orig_x: T): BackPack
+  def fbp(x: T, yb: T, orig_x: T, update: Boolean = true): BackPack
 
   /**
     * @throws UnsupportedOperationException if there's no next layer
@@ -42,12 +43,23 @@ trait Layer {
 
   /**
     * The "chaining" operator. Chains layers to form a neural network
+    * Note that this operator appends the right operand to the end of the chain represented by the left operand
     * @param rhs the subsequent layer in the network
     * @throws UnsupportedOperationException if there's no next layer
     * @return this layer. Allows multiple !! operators in a row
     */
   @throws[UnsupportedOperationException]
   def !!(rhs: Layer): Layer
+
+  /**
+    * right-associative chaining operator
+    */
+  def ::(previous: Layer): Layer
+
+  /**
+    * simply append the subsequent layer
+    */
+  def append(subs: Layer): Layer
 
   /**
     * cost derivative with respect to this layer's input. Note that this method essentially implements the chain rule

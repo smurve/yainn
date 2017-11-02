@@ -183,6 +183,19 @@ package object yainn {
   }
 
   /**
+    * supports parallalization of affine functions:
+    * stack a row of ones on top of the matrix
+    */
+  def v1(x: T): T = Nd4j.hstack(Nd4j.ones(x.columns).T, x.T).T
+
+  /**
+    * supports parallalization of affine functions:
+    * stack the given vector b left to the matrix W
+    */
+  def h(b: T, W: T): T = Nd4j.hstack(b, W)
+
+
+  /**
     * experimental helpers
     */
   def ybt ( yb: T, m: Int): T = {
@@ -202,5 +215,6 @@ package object yainn {
   def euc_n_prime (n: Int)( y: T, yb: T ) : T = {
     euc_prime( y, ybt(yb, n))
   }
+
 
 }

@@ -27,7 +27,7 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
       override val MINI_BATCH_SIZE = 2000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
 
       // 50 epochs get you up to 90%, 200 epochs up to 96.x
-      override val NUM_EPOCHS = 50
+      override val NUM_EPOCHS = 30
       override val ETA = 3e-4 //
     }
 
@@ -36,12 +36,12 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", ConvParameters(5, 5, 14, 14, 50, 1e-3, 0.3, params.SEED)) !!
+        AutoUpdatingConv("Conv", ConvParameters(5, 5, 14, 14, 10, 1e-3, 0.3, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(5000, 1000, 1e-4, 0.1, params.SEED)) !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 100, 1e-4, 0.1, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 100, 3e-4, 0.1, params.SEED)) !!
-        Relu() !!
+        //AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 100, 3e-4, 0.1, params.SEED)) !!
+        //Relu() !!
         AutoUpdatingAffine("affine3", new L2RegAffineParameters(100, 10, 1e-5, 0.1, params.SEED)) !!
         Sigmoid() !! Output(euc, euc_prime)
 

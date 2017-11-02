@@ -6,6 +6,7 @@ import org.nd4s.Implicits._
 import org.smurve.yainn._
 import org.smurve.yainn.components.{Affine, Output}
 import org.smurve.yainn.data.DataIterator
+import org.smurve.yainn.experiments.InvarianceMNISTExperiment.displayPerfectDigits
 import org.smurve.yainn.helpers.SGDTrainer
 
 import scala.language.postfixOps
@@ -27,7 +28,7 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
     /** Overriding the default parameters and hyper-parameters here */
     val params1 = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 20
+      override val NUM_EPOCHS = 10
       override val ETA = 1e-4 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
@@ -64,7 +65,7 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
     val nn1 = Affine("Dense", W1, b1) !! Affine("Dense", W2, b2) !! Sigmoid() !! Output(euc, euc_prime)
 
     /** Train the network to reproduce any image from its lower-dim intermediate encoding */
-    new SGDTrainer(List(nn1)).train(aeIterator, params1)
+    new SGDTrainer(List(nn1)).train(aeIterator, params1, verbose = false)
 
     val x = aeIterator.newTestData(1)._1
     val y = nn1.fp(x)
@@ -91,5 +92,6 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
     predict(nn2, iterator.newTestData(params2.N_DEMO))
 
+    displayPerfectDigits(nn2, 1e-0, 100, params2.SEED)
   }
 }

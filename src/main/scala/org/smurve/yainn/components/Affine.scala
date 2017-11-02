@@ -1,8 +1,7 @@
 package org.smurve.yainn.components
 
-import org.nd4j.linalg.factory.Nd4j
-import org.smurve.yainn.T
 import org.nd4s.Implicits._
+import org.smurve.yainn._
 
 /**
   * A layer representing and affine function
@@ -33,7 +32,5 @@ case class Affine(name: String, W: T, b: T) extends AbstractLayer {
     next.update(listOfDeltas.tail)
   }
 
-  def v1(x: T): T = Nd4j.hstack(Nd4j.ones(x.columns).T, x.T).T
-  def h(b: T, W: T): T = Nd4j.hstack(b, W)
 }
 

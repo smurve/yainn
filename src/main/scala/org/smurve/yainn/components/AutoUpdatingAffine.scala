@@ -1,8 +1,7 @@
 package org.smurve.yainn.components
 
-import org.nd4j.linalg.factory.Nd4j
 import org.nd4s.Implicits._
-import org.smurve.yainn.T
+import org.smurve.yainn._
 import org.smurve.yainn.helpers.SmartParameters
 
 /**
@@ -17,20 +16,23 @@ case class AutoUpdatingAffine(name: String, p: SmartParameters ) extends Abstrac
   }
 
   /**
-    * back prop will not contain gradients of this layer.
     * @param x the input value
     * @param yb y_bar, the given true classification (label) for the input value x
     * @return a structure holding the backprop artifacts
     */
-  override def fbp(x: T, yb: T, orig_x: T): BackPack = {
-    val from_next = next.fbp(func(x), yb, orig_x)
+  override def fbp(x: T, yb: T, orig_x: T, update: Boolean = true): BackPack = {
+    val from_next = next.fbp(func(x), yb, orig_x, update)
     val dCdy = dC_dy(x, from_next.dC_dy)
-    p.update(grads(x, from_next.dC_dy).get )
+
+    val myGrads = grads(x, from_next.dC_dy).get
+
+    if ( update )
+      p.update(myGrads)
 
     BackPack(
       from_next.C + p.cost,
       dCdy,
-      from_next.grads)
+      List(myGrads) ::: from_next.grads)
   }
 
   override def grads(x: T, dC_dy: T): Option[(T, T)] = Some((dC_dy ** x.T + p.dC_dw, dC_dy.sum(1)))
@@ -42,8 +44,5 @@ case class AutoUpdatingAffine(name: String, p: SmartParameters ) extends Abstrac
     next.update(listOfDeltas)
   }
 
-
-  def v1(x: T): T = Nd4j.hstack(Nd4j.ones(x.columns).T, x.T).T
-  def h(b: T, W: T): T = Nd4j.hstack(b, W)
 }
 

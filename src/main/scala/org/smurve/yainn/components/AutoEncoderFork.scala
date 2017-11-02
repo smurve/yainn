@@ -33,12 +33,12 @@ case class AutoEncoderFork ( ae: Layer, lambda: Double ) extends AbstractLayer {
     * @param yb y_bar, the given true classification (label) for the input value x
     * @return a structure holding the backprop artifacts
     */
-  override def fbp(x: T, yb: T, orig_x: T): BackPack = {
+  override def fbp(x: T, yb: T, orig_x: T, update: Boolean = false ): BackPack = {
 
-    val from_ae = ae.fbp(x, orig_x, orig_x)
-    val from_nn = next.fbp(x, yb, orig_x)
+    val from_ae = ae.fbp(x, orig_x, orig_x, update)
+    val from_nn = next.fbp(x, yb, orig_x, update)
     val aec = lambda * from_ae.C
-    var nnc = ( 1 - lambda ) * from_nn.C
+    val nnc = ( 1 - lambda ) * from_nn.C
     val totalCost = (1-lambda) * nnc + lambda * aec
     val total_dC_dy = from_nn.dC_dy * ( 1 - lambda ) + from_ae.dC_dy * lambda
     BackPack(totalCost, total_dC_dy, from_nn.grads)
