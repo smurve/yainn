@@ -36,13 +36,33 @@ package object yainn {
     */
   def euc(y: T, yb: T): Double = {
     val diff = y - yb
-    (diff * diff).sumT[Double] * 0.5
+    (diff * diff).sumT[Double] * 0.5 / y.size(1)
   }
 
   /**
     * ...and its derivative
     */
-  def euc_prime(y: T, yb: T): T = y - yb
+  def euc_prime(y: T, yb: T): T = (y - yb) / y.size(1)
+
+
+  /**
+    * cross-entropy cost, numerically unstable when y gets closer to yb.
+    * Luckily, we don't need it for back prop other than monitoring the success
+    */
+  def x_ent(y: T, yb: T): Double = {
+    val epsilon = 1e-10
+    val yc = y * ( 1 - 2 * epsilon) + epsilon
+    val res = (-yb * log(yc) + ( yb - 1) * log(-yc + 1)).sumT / y.size(1)
+    res
+  }
+
+  /**
+    * cross-entropy cost derivative, numerically stabilized
+    */
+  def x_ent_prime (y: T, yb: T): T = {
+    val epsilon = 1e-30
+    (yb - y) / (y * ( y - 1 ) + epsilon) / y.size(1)
+  }
 
   def sigmoid_prime(x: T): T = -sigmoid(x) * (sigmoid(x) - 1)
   def Sigmoid() = Activation(sigmoid, sigmoid_prime)

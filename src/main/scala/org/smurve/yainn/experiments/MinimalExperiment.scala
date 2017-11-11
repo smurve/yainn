@@ -21,8 +21,8 @@ object MinimalExperiment {
     val NOISE = 0.4
     val BATCH_SIZE = 20
     val NUM_BATCHES = 2
-    val NUM_EPOCHS = 5
-    val ETA = 3e-1
+    val NUM_EPOCHS = 10
+    val ETA = 1e-0
 
     println("Creating data iterator...")
     val data = new MinimalDataIterator(NOISE, BATCH_SIZE, NUM_BATCHES, seed)

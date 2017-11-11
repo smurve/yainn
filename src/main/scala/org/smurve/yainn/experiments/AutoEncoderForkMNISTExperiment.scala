@@ -26,9 +26,9 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
     /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 10
-      override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
-      val ETA_AE = 1e-5
+      override val NUM_EPOCHS = 50
+      override val ETA = 1e-1 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      val ETA_AE = 1e-2
       val ALPHA = 1e-1 // L2 regularization factor for layer 1
     }
 
@@ -47,7 +47,7 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
       Relu() ::
       AutoUpdatingAffine("Hidden2", new L2RegAffineParameters(100, 10, params.ETA, 0.0, params.SEED)) ::
       Sigmoid() ::
-      Output(euc, euc_prime)
+      Output(x_ent, x_ent_prime)
 
 
     /** stack some layers to form a network */

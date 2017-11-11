@@ -26,7 +26,7 @@ object InvarianceMNISTExperiment extends AbstractMNISTExperiment with Logging {
     val params = new Params() {
       override val MINI_BATCH_SIZE = 2000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
       override val NUM_EPOCHS = 20
-      override val ETA = 3e-3
+      override val ETA = 1e-1
       val ALPHA = 5e-2
     }
 
@@ -35,14 +35,12 @@ object InvarianceMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", ConvParameters(10, 8, 14, 14, 20, params.ETA, params.ALPHA, params.SEED)) !!
+        AutoUpdatingConv("Conv", ConvParameters(10, 8, 14, 14, 40, params.ETA, params.ALPHA, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine3", new L2RegAffineParameters(700, 300, params.ETA, params.ALPHA, params.SEED)) !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1400, 300, params.ETA, params.ALPHA, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine3", new L2RegAffineParameters(300, 100, params.ETA, params.ALPHA, params.SEED)) !!
-        Relu() !!
-        AutoUpdatingAffine("affine3", new L2RegAffineParameters(100, 10, params.ETA, 0.0, params.SEED)) !!
-        Sigmoid() !! Output(euc, euc_prime)
+        AutoUpdatingAffine("affine2", new L2RegAffineParameters(300, 10, params.ETA, 0.0, params.SEED)) !!
+        Sigmoid() !! Output(x_ent, x_ent_prime)
 
 
 

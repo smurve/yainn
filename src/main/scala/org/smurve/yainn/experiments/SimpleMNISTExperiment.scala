@@ -26,8 +26,8 @@ object SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
     /** Overriding the default parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 20
-      override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      override val NUM_EPOCHS = 100
+      override val ETA = 3e-2 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** read data from disk */
@@ -38,7 +38,7 @@ object SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
     val W = (Nd4j.rand(10, 784, params.SEED) - 0.5) / 10.0
     val b = (Nd4j.rand(10, 1, params.SEED) - 0.5) / 10.0
 
-    val nn = Affine("Dense", W, b) !! Sigmoid() !! Output(euc, euc_prime)
+    val nn = Affine("Dense", W, b) !! Sigmoid() !! Output(x_ent, x_ent_prime)
 
 
     /** see that the network cannot yet do anything useful without training */

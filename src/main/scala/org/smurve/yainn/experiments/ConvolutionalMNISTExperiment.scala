@@ -28,7 +28,7 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
       // 50 epochs get you up to 90%, 200 epochs up to 96.x
       override val NUM_EPOCHS = 30
-      override val ETA = 3e-4 //
+      override val ETA = 1e-1 //
     }
 
     /** read data from disk */
@@ -36,14 +36,12 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", ConvParameters(5, 5, 14, 14, 10, 1e-3, 0.3, params.SEED)) !!
+        AutoUpdatingConv("Conv", ConvParameters(5, 5, 14, 14, 40, params.ETA, 0.05, params.SEED)) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 100, 1e-4, 0.1, params.SEED)) !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(4000, 100, params.ETA, 0.05, params.SEED)) !!
         Relu() !!
-        //AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 100, 3e-4, 0.1, params.SEED)) !!
-        //Relu() !!
-        AutoUpdatingAffine("affine3", new L2RegAffineParameters(100, 10, 1e-5, 0.1, params.SEED)) !!
-        Sigmoid() !! Output(euc, euc_prime)
+        AutoUpdatingAffine("affine2", new L2RegAffineParameters(100, 10, params.ETA, 0.05, params.SEED)) !!
+        Sigmoid() !! Output(x_ent, x_ent_prime)
 
 
     /** see that the network cannot yet do anything useful without training */

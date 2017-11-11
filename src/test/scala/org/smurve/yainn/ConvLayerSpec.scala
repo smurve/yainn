@@ -39,7 +39,7 @@ class ConvLayerSpec extends FlatSpec with ShouldMatchers {
 
     val back = nn.fbp(x, yb, x)
 
-    back.C shouldEqual 8
+    back.C shouldEqual 4
 
     // the cost should decrease with each call to fbp, since the conv layer is auto-updating
     var c = 100.0

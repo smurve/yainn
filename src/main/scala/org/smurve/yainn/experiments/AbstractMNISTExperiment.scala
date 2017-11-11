@@ -59,7 +59,7 @@ class AbstractMNISTExperiment extends Logging {
       val b = (Nd4j.rand(right, 1, seed) - 0.5) / 10.0
       Affine(name, W, b) !!
         (if (index == dims.size - 2) Sigmoid() else Relu())
-    }).reduce((acc, elem) => acc !! elem) !! Output(euc, euc_prime)
+    }).reduce((acc, elem) => acc !! elem) !! Output(x_ent, x_ent_prime) //Output(euc, euc_prime)
 
 
   /**
