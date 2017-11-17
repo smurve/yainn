@@ -134,7 +134,7 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       2,3,
       3,4,
       4,5)
-    val params = ConvParameters(3, 2, 4, 4, fields, 0.0, 0.0)
+    val params = ConvParameters(3, 2, 4, 4, fields, 0.0, 0.0, seed)
 
     val nn = AutoUpdatingConv("conv", params) !! Output(euc, euc_prime)
     val x0 = t(
@@ -164,9 +164,9 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
       val (fl, fr) = blr(fields, r, epsilon)
 
       // networks with slightly changed paramters
-      val p_l = ConvParameters(3, 2, 4, 4, fl, 0.0, 0.0)
+      val p_l = ConvParameters(3, 2, 4, 4, fl, 0.0, 0.0, seed)
       val nn_l = AutoUpdatingConv("convl", p_l) !! Output(euc, euc_prime)
-      val p_r = ConvParameters(3, 2, 4, 4, fr, 0.0, 0.0)
+      val p_r = ConvParameters(3, 2, 4, 4, fr, 0.0, 0.0, seed)
       val nn_r = AutoUpdatingConv("convr", p_r) !! Output(euc, euc_prime)
 
       // it's like comparing two networks and choosing the better one

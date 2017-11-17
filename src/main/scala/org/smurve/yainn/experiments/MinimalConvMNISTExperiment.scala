@@ -4,42 +4,47 @@ import grizzled.slf4j.Logging
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4s.Implicits._
 import org.smurve.yainn._
-import org.smurve.yainn.components.{Affine, Output}
-import org.smurve.yainn.helpers.SGDTrainer
+import org.smurve.yainn.components._
+import org.smurve.yainn.helpers._
 
 import scala.language.postfixOps
 
 
 /**
-  * The inevitable, ubiquitous MNIST show case from bricks and mortar with a single dense layer
-  * With the help of ND4J/ND4S linear algebra abstractions.
+  * MNIST with a convolutional layer
   * Run this without any arguments to see how
   * a) data is loaded from the MNIST-provided files
-  * b) a network is created consisting of affine (dense, or fully connected) layers and appropriate activation functions
+  * b) a network is created consisting of pre-processing, convolutional and affine layers
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
+  * e) slow things become when convolutional layers are implemented the "naive" way.
   */
-object SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object MinimalConvMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
     /** Overriding the default parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 40
-      override val ETA = 3e-2 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+
+      // 50 epochs get you up to 90%, 200 epochs up to 96.x
+      override val NUM_EPOCHS = 30
+      override val ETA = 1e-1 //
+      val ALPHA = 0
     }
+
+    //val fields = (Nd4j.rand(10 * 5 * 5, 1) - 0.5) / 100.0
 
     /** read data from disk */
     val iterator = createIterator(params)
 
-
-    /** stack some layers to form a network*/
-    val W = (Nd4j.rand(10, 784, params.SEED) - 0.5) / 10.0
-    val b = (Nd4j.rand(10, 1, params.SEED) - 0.5) / 10.0
-
-    val nn = Affine("Dense", W, b) !! Sigmoid() !! Output(x_ent, x_ent_prime)
-
+    val nn =
+      ShrinkAndSharpen(cut = .4) !!
+        AutoUpdatingConv("Conv", new ConvParameters(5, 5, 14, 14, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
+        Relu() !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
+        Sigmoid() !!
+        Output(x_ent, x_ent_prime)
 
     /** see that the network cannot yet do anything useful without training */
     val testSet = iterator.newTestData(params.TEST_SIZE)

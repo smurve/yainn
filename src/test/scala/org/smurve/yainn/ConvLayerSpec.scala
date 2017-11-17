@@ -8,6 +8,8 @@ import org.smurve.yainn.helpers.ConvParameters
 
 class ConvLayerSpec extends FlatSpec with ShouldMatchers {
 
+  val seed = 123
+
   "A conv layer" should "update correctly after fbp" in {
 
     val fields = t(
@@ -31,13 +33,17 @@ class ConvLayerSpec extends FlatSpec with ShouldMatchers {
     val b = t(0, 0)
     val W = Nd4j.ones(2, 18)
 
-    val params = ConvParameters(2,2, 4, 4, fields, 1e-6, 0.0)
+    val params = ConvParameters(2,2, 4, 4, fields, 1e-6, 0, seed)
 
     val nn = AutoUpdatingConv("conv", params) !! Affine("hidden", W, b) !! Output(euc, euc_prime)
 
     nn.fp(x)(->, 0) shouldEqual t(432, 432)
 
+    val y = nn.fp(x)
+
     val back = nn.fbp(x, yb, x)
+
+    val y1 = nn.fp(x)
 
     back.C shouldEqual 4
 

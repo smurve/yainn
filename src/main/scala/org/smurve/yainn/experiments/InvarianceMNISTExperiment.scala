@@ -4,7 +4,7 @@ import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn._
 import org.smurve.yainn.components._
-import org.smurve.yainn.helpers.{ConvParameters, L2RegAffineParameters, SGDTrainer}
+import org.smurve.yainn.helpers._
 
 import scala.language.postfixOps
 
@@ -27,19 +27,23 @@ object InvarianceMNISTExperiment extends AbstractMNISTExperiment with Logging {
       override val MINI_BATCH_SIZE = 2000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
       override val NUM_EPOCHS = 20
       override val ETA = 1e-1
-      val ALPHA = 5e-2
+      val ALPHA = 1e-4
     }
 
     /** read data from disk */
     val iterator = createIterator(params)
 
+    def adam(size_W: Int, size_b: Int) = {
+      Some(Adam(eta=params.ETA, size_W = size_W, size_b = size_b))
+    }
+
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", ConvParameters(10, 8, 14, 14, 40, params.ETA, params.ALPHA, params.SEED)) !!
+        AutoUpdatingConv("Conv", new ConvParameters(10, 8, 14, 14, 40, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1400, 300, params.ETA, params.ALPHA, params.SEED)) !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1400, 300, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
         Relu() !!
-        AutoUpdatingAffine("affine2", new L2RegAffineParameters(300, 10, params.ETA, 0.0, params.SEED)) !!
+        AutoUpdatingAffine("affine2", new L2RegAffineParameters(300, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
         Sigmoid() !! Output(x_ent, x_ent_prime)
 
 

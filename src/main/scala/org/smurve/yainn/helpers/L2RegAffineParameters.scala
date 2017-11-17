@@ -8,26 +8,21 @@ import org.nd4s.Implicits._
   * L2 regularized autoupdating parameters for affine layers
   * @param inputSize input size
   * @param outputSize output size
-  * @param eta learning rate
-  * @param alpha relative weight of the cost
+  * @param alpha relative weight of the regularizing L2 cost
   * @param seed random seed
-  * @param updatable flag: updatable or not
   */
-class L2RegAffineParameters(inputSize: Int, outputSize: Int, eta: Double, alpha: Double, seed: Long, updatable: Boolean = true) extends SmartParameters {
+class L2RegAffineParameters(inputSize: Int, outputSize: Int, alpha: Double,
+                            seed: Long, updater: Option[Updater]) extends SmartParameters {
 
-  val W: T = (Nd4j.rand(outputSize, inputSize, seed) - 0.5) / 10
-  val b: T = (Nd4j.rand(outputSize, 1, seed) - 0.5) / 10
+  val W: T = (Nd4j.rand(outputSize, inputSize, seed) - 0.5) / 10.0
+  val b: T = (Nd4j.rand(outputSize, 1, seed) - 0.5) / 10.0
 
   /**
     * update the weights by eta-fold of the gradients if 'updatable' is set to true
     * @param gradients the recent gradients from back prop
     */
-  override def update(gradients: (T, T)): Unit = {
-    if ( updatable ) {
-      W.subi(gradients._1 * eta)
-      b.subi(gradients._2 * eta)
-    }
-  }
+  override def update(gradients: (T, T)): Unit =
+      updater.foreach(u=>u.update(W, b, gradients))
 
   /**
     * Parameters may come at a cost, here the sum of the squared weights.
@@ -42,3 +37,4 @@ class L2RegAffineParameters(inputSize: Int, outputSize: Int, eta: Double, alpha:
     */
   override def dC_dw: T = W * alpha
 }
+

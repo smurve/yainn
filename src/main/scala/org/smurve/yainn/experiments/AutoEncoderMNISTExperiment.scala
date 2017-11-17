@@ -6,7 +6,6 @@ import org.nd4s.Implicits._
 import org.smurve.yainn._
 import org.smurve.yainn.components.{Affine, Output}
 import org.smurve.yainn.data.DataIterator
-import org.smurve.yainn.experiments.InvarianceMNISTExperiment.displayPerfectDigits
 import org.smurve.yainn.helpers.SGDTrainer
 
 import scala.language.postfixOps
@@ -28,15 +27,15 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
     /** Overriding the default parameters and hyper-parameters here */
     val params1 = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 10
-      override val ETA = 1e-4 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      override val NUM_EPOCHS = 6
+      override val ETA = 1e-1 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** Overriding the default parameters and hyper-parameters here */
     val params2 = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
       override val NUM_EPOCHS = 30
-      override val ETA = 1e-3 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      override val ETA = 1e-1 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
     }
 
     /** create an adapter that returns the pairs of images for the auto-encoder network*/

@@ -41,7 +41,7 @@ case class AutoUpdatingConv(name: String, p: ConvParameters) extends AbstractLay
 
   override def grads(x: T, dC_dy: T): Option[(T, T)] = {
 
-    val nabla_w = dC_dy ** x.T
+    val nabla_w = dC_dy ** x.T // matrix product sums over samples
 
     val nabla_f = Nd4j.zeros(p.n_Fields * p.h_Field * p.w_Field).T
     for {
@@ -57,7 +57,9 @@ case class AutoUpdatingConv(name: String, p: ConvParameters) extends AbstractLay
       nabla_f(n * p.h_Field * p.w_Field + i * p.w_Field + j) = d_df_ij
     }
 
-    Some((nabla_f, dC_dy.sum(1)))
+    val nabla_b = dC_dy.sum(1).reshape(p.n_Fields, p.w_Output * p.h_Output).sum(1)
+
+    Some((nabla_f, nabla_b))
   }
 
   override def dC_dy(x: T, dC_dy_from_next: T): T = p.W.T ** dC_dy_from_next

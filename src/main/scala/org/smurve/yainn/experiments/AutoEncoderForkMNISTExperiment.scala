@@ -3,7 +3,7 @@ package org.smurve.yainn.experiments
 import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn.components.{AutoEncoderFork, AutoUpdatingAffine, Output}
-import org.smurve.yainn.helpers.{L2RegAffineParameters, SGDTrainer}
+import org.smurve.yainn.helpers.{L2RegAffineParameters, NaiveSGD, SGDTrainer}
 import org.smurve.yainn._
 
 import scala.language.postfixOps
@@ -28,24 +28,24 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
       override val NUM_EPOCHS = 50
       override val ETA = 1e-1 // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
-      val ETA_AE = 1e-2
-      val ALPHA = 1e-1 // L2 regularization factor for layer 1
+      val ETA_AE = 1e-2 // learning rate for layers involved in auto-encoding
+      val ALPHA = 1e-3 // L2 regularization factor
     }
 
     /** read data from disk */
     val iterator = createIterator(params)
 
     val ae_tail =
-      AutoUpdatingAffine("AE_Tail", new L2RegAffineParameters(200, 784, params.ETA_AE, 0.0, params.SEED)) !!
+      AutoUpdatingAffine("AE_Tail", new L2RegAffineParameters(200, 784, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA_AE)))) ::
       Output(euc, euc_prime)
 
 
-    val input = AutoUpdatingAffine("Input", new L2RegAffineParameters(784, 200, params.ETA_AE, params.ALPHA, params.SEED))
+    val input = AutoUpdatingAffine("Input", new L2RegAffineParameters(784, 200, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA_AE))))
     val tail =
       Relu() ::
-      AutoUpdatingAffine("Hidden1", new L2RegAffineParameters(200, 100, params.ETA, 0.0, params.SEED)) ::
+      AutoUpdatingAffine("Hidden1", new L2RegAffineParameters(200, 100, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) ::
       Relu() ::
-      AutoUpdatingAffine("Hidden2", new L2RegAffineParameters(100, 10, params.ETA, 0.0, params.SEED)) ::
+      AutoUpdatingAffine("Hidden2", new L2RegAffineParameters(100, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) ::
       Sigmoid() ::
       Output(x_ent, x_ent_prime)
 

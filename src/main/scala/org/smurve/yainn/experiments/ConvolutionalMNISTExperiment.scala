@@ -4,7 +4,7 @@ import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn._
 import org.smurve.yainn.components._
-import org.smurve.yainn.helpers.{ConvParameters, L2RegAffineParameters, SGDTrainer}
+import org.smurve.yainn.helpers._
 
 import scala.language.postfixOps
 
@@ -28,7 +28,12 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
       // 50 epochs get you up to 90%, 200 epochs up to 96.x
       override val NUM_EPOCHS = 30
-      override val ETA = 1e-1 //
+      override val ETA = 3e-1 //
+      val ALPHA = 0
+    }
+
+    def adam ( size_W: Int, size_b: Int, eta: Double ): Option[Updater] = {
+      Some(Adam(eta = eta, size_W = size_W, size_b = size_b))
     }
 
     /** read data from disk */
@@ -36,12 +41,13 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", ConvParameters(5, 5, 14, 14, 40, params.ETA, 0.05, params.SEED)) !!
+        AutoUpdatingConv("Conv", new ConvParameters(5, 5, 14, 14, 40, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(4000, 100, params.ETA, 0.05, params.SEED)) !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(4000, 100, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
         Relu() !!
-        AutoUpdatingAffine("affine2", new L2RegAffineParameters(100, 10, params.ETA, 0.05, params.SEED)) !!
-        Sigmoid() !! Output(x_ent, x_ent_prime)
+        AutoUpdatingAffine("affine2", new L2RegAffineParameters(100, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
+        Sigmoid() !!
+        Output(x_ent, x_ent_prime)
 
 
     /** see that the network cannot yet do anything useful without training */
