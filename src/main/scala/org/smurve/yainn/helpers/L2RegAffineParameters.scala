@@ -22,7 +22,8 @@ class L2RegAffineParameters(inputSize: Int, outputSize: Int, alpha: Double,
     * @param gradients the recent gradients from back prop
     */
   override def update(gradients: (T, T)): Unit =
-      updater.foreach(u=>u.update(W, b, gradients))
+      updater.foreach(u=>u.update(W, b,
+        (gradients._1, gradients._2)))
 
   /**
     * Parameters may come at a cost, here the sum of the squared weights.

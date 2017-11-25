@@ -25,7 +25,7 @@ object MinimalConvMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
     /** Overriding the default parameters and hyper-parameters here */
     val params = new Params() {
-      override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
+      override val MINI_BATCH_SIZE = 2000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
 
       // 50 epochs get you up to 90%, 200 epochs up to 96.x
       override val NUM_EPOCHS = 30
@@ -40,9 +40,15 @@ object MinimalConvMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
     val nn =
       ShrinkAndSharpen(cut = .4) !!
-        AutoUpdatingConv("Conv", new ConvParameters(5, 5, 14, 14, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
+        AutoUpdatingConv("Conv", new ConvParameters(5, 5, 14, 14, 10, params.ALPHA, params.SEED,
+          //Some(NaiveSGD(params.ETA))
+          Some(Adam(eta=params.ETA / 10, size_W = 10 * 5 * 5, size_b = 10))
+        )) !!
         Relu() !!
-        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 10, params.ALPHA, params.SEED, Some(NaiveSGD(params.ETA)))) !!
+        AutoUpdatingAffine("affine1", new L2RegAffineParameters(1000, 10, params.ALPHA, params.SEED,
+          //Some(NaiveSGD(params.ETA))
+          Some(Adam(eta=params.ETA / 10, size_W = 10 * 1000, size_b = 10))
+        )) !!
         Sigmoid() !!
         Output(x_ent, x_ent_prime)
 
@@ -53,7 +59,7 @@ object MinimalConvMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(List(nn)).train(iterator, params)
+    new GradientDescentTrainer(List(nn)).train(iterator, params)
 
 
     /** Demonstrate the network's capabilities */

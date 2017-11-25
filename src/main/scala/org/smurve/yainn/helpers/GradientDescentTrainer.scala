@@ -1,9 +1,10 @@
 package org.smurve.yainn.helpers
 
+import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn.components.{BackPack, Layer}
 import org.smurve.yainn.data.DataIterator
-import org.smurve.yainn.experiments.DenseWithAdamComparisonExperiment.{printstats, successCount}
+import org.smurve.yainn.experiments.Ex_6_NaiveSGDWithAdamComparisonExperiment.{printstats, successCount}
 import org.smurve.yainn.experiments.Params
 import org.smurve.yainn.timed
 
@@ -13,7 +14,7 @@ import org.smurve.yainn.timed
   *
   * @param nns a list of entry layers to feed, the first is going to be used for testing
   */
-class SGDTrainer(nns: List[Layer]) {
+class GradientDescentTrainer(nns: List[Layer]) extends Logging {
 
   def train(iterator: DataIterator, params: Params, verbose: Boolean = true ) {
 
@@ -39,6 +40,7 @@ class SGDTrainer(nns: List[Layer]) {
           if (!iterator.hasNext && verbose ) {
             /** Do some stats at the end of each epoch */
             println(s"Epoch Nr. $e, after ${params.NUM_BATCHES} batches: Cost=$cost")
+            println("Deltas")
             printstats(deltas)
           }
         }
@@ -49,7 +51,7 @@ class SGDTrainer(nns: List[Layer]) {
 
       /** validate the networks performance with the help of the test set */
       val successRate = successCount(nns.head, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
-      println(s"Net learning time: $duration ms, Sucess rate: $successRate")
+      info(s"Net learning time: $duration ms, Sucess rate: $successRate")
     }
   }
 

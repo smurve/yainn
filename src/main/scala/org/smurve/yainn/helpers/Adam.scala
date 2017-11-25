@@ -29,20 +29,25 @@ case class Adam ( beta1: Double = 0.9, beta2: Double = 0.999, eta: Double, epsil
     */
   override def update( W: T, b: T, gradients: (T,T)): Unit = {
 
-    v_W.muli(beta1).addi(gradients._1.reshape(-1,1) * (-beta1 + 1))
+    val gW = gradients._1.reshape(-1,1)
+    val gb = gradients._2.reshape(-1,1)
+
+    v_W.muli(beta1).addi(gW * (-beta1 + 1))
     val v_W_corr = v_W / (1-math.pow(beta1, t))
 
-    s_W.muli(beta2).addi((gradients._1.reshape(-1,1) * gradients._1.reshape(-1,1)) * (-beta2 + 1))
+    s_W.muli(beta2).addi((gW * gW) * (-beta2 + 1))
     val s_W_corr = s_W / (1-math.pow(beta2, t))
 
-    v_b.muli(beta1).addi(gradients._2.reshape(-1,1) * (-beta1 + 1))
+    v_b.muli(beta1).addi(gb * (-beta1 + 1))
     val v_b_corr = v_b / (1-math.pow(beta1, t))
 
-    s_b.muli(beta2).addi((gradients._2.reshape(-1,1) * gradients._2.reshape(-1,1)) * (-beta2 + 1))
+    s_b.muli(beta2).addi((gb * gb) * (-beta2 + 1))
     val s_b_corr = s_b / (1-math.pow(beta2, t))
 
-    W.reshape(-1,1).subi(gradients._1.reshape(-1,1) * eta * v_W_corr / (sqrt(s_W_corr) + epsilon))
-    b.reshape(-1,1).subi(gradients._2.reshape(-1,1) * eta * v_b_corr / (sqrt(s_b_corr) + epsilon))
+    val delta_W = v_W_corr * eta / (sqrt(s_W_corr) + epsilon)
+    W.reshape(-1,1).subi(delta_W)
+    val delta_b = v_b_corr * eta / (sqrt(s_b_corr) + epsilon)
+    b.reshape(-1,1).subi(delta_b)
 
     t += 1
   }

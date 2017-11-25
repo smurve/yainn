@@ -10,7 +10,7 @@ import org.smurve.yainn.data.MinimalDataIterator
 /**
   * A minimal experiment with very small artificial data sets and few parameters.
   */
-object MinimalExperiment {
+object Ex_1_MinimalExperiment {
 
   def main(args: Array[String]): Unit = {
     val seed = 1234L

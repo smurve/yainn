@@ -57,7 +57,7 @@ object ConvolutionalMNISTExperiment extends AbstractMNISTExperiment with Logging
 
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(List(nn)).train(iterator, params)
+    new GradientDescentTrainer(List(nn)).train(iterator, params)
 
 
     /** Demonstrate the network's capabilities */

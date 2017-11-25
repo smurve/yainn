@@ -3,7 +3,7 @@ package org.smurve.yainn.experiments
 import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn.components.{AutoEncoderFork, AutoUpdatingAffine, Output}
-import org.smurve.yainn.helpers.{L2RegAffineParameters, NaiveSGD, SGDTrainer}
+import org.smurve.yainn.helpers.{L2RegAffineParameters, NaiveSGD, GradientDescentTrainer}
 import org.smurve.yainn._
 
 import scala.language.postfixOps
@@ -63,7 +63,7 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
 
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(List(nn)).train(iterator, params)
+    new GradientDescentTrainer(List(nn)).train(iterator, params)
 
 
     /** Demonstrate the network's capabilities */

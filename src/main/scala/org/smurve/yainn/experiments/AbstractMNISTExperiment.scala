@@ -136,7 +136,7 @@ class AbstractMNISTExperiment extends Logging {
       for  {
         _ <- 1 to nmax if euc(nn.fp(digit), yb) > 1e-2
       } {
-        val c = euc(nn.fp(digit), yb)
+        //val c = euc(nn.fp(digit), yb)
         //println(s"Cost: $c")
         val dC_dx = nn.fbp(digit, yb, digit, update = false).dC_dy // fwd-bwd pass to retrieve dC_dy (which is dC_dx here...)
         digit = relu(digit - dC_dx * eta)// gradient descent: adjust the image a little bit

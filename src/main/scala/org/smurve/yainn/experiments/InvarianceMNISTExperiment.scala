@@ -54,7 +54,7 @@ object InvarianceMNISTExperiment extends AbstractMNISTExperiment with Logging {
     info(s"Sucess rate before training: $successRate")
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(List(nn)).train(iterator, params)
+    new GradientDescentTrainer(List(nn)).train(iterator, params)
 
     /** Demonstrate the network's capabilities */
     predict(nn, iterator.newTestData(params.N_DEMO))

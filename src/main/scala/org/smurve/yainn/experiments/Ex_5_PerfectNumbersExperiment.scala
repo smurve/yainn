@@ -1,7 +1,7 @@
 package org.smurve.yainn.experiments
 
 import grizzled.slf4j.Logging
-import org.smurve.yainn.helpers.SGDTrainer
+import org.smurve.yainn.helpers.GradientDescentTrainer
 
 import scala.language.postfixOps
 
@@ -14,7 +14,7 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained is used to optimize a white-noise image such that it produces a given classification
   */
-object PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_5_PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
@@ -32,7 +32,7 @@ object PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
     val nn = createNetwork(params.SEED, 784, 1600, 200, 10)
 
     /** Use gradient descent to train the network */
-    new SGDTrainer(List(nn)).train(iterator, params)
+    new GradientDescentTrainer(List(nn)).train(iterator, params)
 
 
     displayPerfectDigits(nn, 1e-0, 100, params.SEED)
