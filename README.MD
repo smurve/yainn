@@ -11,7 +11,7 @@ The main package is org.smurve.yainn, and from there you'll find the following p
 
  - components: the various functional layers
  - data: the iterators that provide the input values (images)
- - experiments: executable classes demonstrating the learning success
+ - [experiments](src/main/scala/org/smurve/yainn/experiments): executable classes demonstrating the learning success
  - worksheets: some interactive worksheets to play with
  
 
