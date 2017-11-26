@@ -14,7 +14,7 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained is used to optimize a white-noise image such that it produces a given classification
   */
-object Ex_5_PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_05_PerfectNumbersExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 

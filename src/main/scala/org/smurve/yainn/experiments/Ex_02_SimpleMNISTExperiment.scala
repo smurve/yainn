@@ -19,7 +19,7 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
   */
-object Ex_2_SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_02_SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
@@ -52,6 +52,7 @@ object Ex_2_SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
 
     /** Demonstrate the network's capabilities */
-    predict(nn, iterator.newTestData(params.N_DEMO))
+    val testData = iterator.newTestData(params.N_DEMO)
+    predict(nn.fp(testData._1), testData)
   }
 }

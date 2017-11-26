@@ -177,9 +177,27 @@ class GradientCheckSpec extends FlatSpec with ShouldMatchers {
 
   }
 
+  "Softmax cross-entropy cost derivatives" should "be plausible" in {
+    val y=t(1,2,4,2,5,1).reshape(2,3).T
+    val yb = t(0 , 0,1, 0, 1, 0).reshape(2,3).T
+    val dC_dy_ana = smxewl_prime(y,yb)
+    for ( i <- 0 until 6 ) {
+      val eps = Nd4j.zeros(2, 3)
+      eps(i) = epsilon
+      val yl = y - eps.reshape(2, 3).T
+      val yr = y + eps.reshape(2, 3).T
+      val dC_dy_num = (smxewl(yr, yb) - smxewl(yl, yb)) / 2 / epsilon
+      dC_dy_num shouldEqual dC_dy_ana(i)
+    }
+  }
+
   /******************************************************************************
    *                  Helpers
    ******************************************************************************/
+
+
+
+
 
   /**
     * Numerical gradient computation suffers from the "difference of large numbers" problem, thus a deviation

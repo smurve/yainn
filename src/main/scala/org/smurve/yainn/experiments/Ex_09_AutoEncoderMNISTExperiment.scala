@@ -20,7 +20,7 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
   */
-object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_09_AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
@@ -95,7 +95,8 @@ object AutoEncoderMNISTExperiment extends AbstractMNISTExperiment with Logging {
     /** this network achieves 94.5% with fairly small layers 784 x 128 x 200 x 10 */
     new GradientDescentTrainer(List(nn2)).train(iterator, params2)
 
-    predict(nn2, iterator.newTestData(params2.N_DEMO))
+    val testData = iterator.newTestData(params2.N_DEMO)
+    predict(nn2.fp(testData._1), testData)
 
     displayPerfectDigits(nn2, 1e-0, 100, params2.SEED)
   }

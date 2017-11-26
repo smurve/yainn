@@ -4,7 +4,7 @@ import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.ops.transforms.Transforms._
 import org.nd4s.Implicits._
-import org.smurve.yainn.components.Activation
+import org.smurve.yainn.components.{Activation, Output}
 
 package object yainn {
 
@@ -33,17 +33,14 @@ package object yainn {
 
   /**
     * The euclidean difference between two vectors
+    * ...and its derivative
     */
   def euc(y: T, yb: T): Double = {
     val diff = y - yb
     (diff * diff).sumT[Double] * 0.5 / y.size(1)
   }
-
-  /**
-    * ...and its derivative
-    */
   def euc_prime(y: T, yb: T): T = (y - yb) / y.size(1)
-
+  def Euclidean() = Output(euc, euc_prime)
 
   /**
     * cross-entropy cost, numerically unstable when y gets closer to yb.
@@ -64,11 +61,24 @@ package object yainn {
     (yb - y) / (y * ( y - 1 ) + epsilon) / y.size(1)
   }
 
+  /**
+    * Softmax cross-entropy cost with logits
+    */
+  def smxewl(y: T, yb: T): Double = {
+    (-yb * log(softmax(y.T).T)).sumT / yb.size(1)
+  }
+  def smxewl_prime (y: T, yb: T): T = (softmax(y.T).T - yb) / yb.size(1)
+  def SoftMaxCrossEntropy(): Output = Output(smxewl, smxewl_prime)
+
+
+
   def sigmoid_prime(x: T): T = -sigmoid(x) * (sigmoid(x) - 1)
   def Sigmoid() = Activation(sigmoid, sigmoid_prime)
 
   def relu_prime(x: T): T = sign(relu(x))
   def Relu() = Activation(relu, relu_prime)
+
+
 
   /**
     * compare classifications with their respective true labels

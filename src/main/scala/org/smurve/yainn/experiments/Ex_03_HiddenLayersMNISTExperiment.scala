@@ -2,7 +2,6 @@ package org.smurve.yainn.experiments
 
 import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
-import org.smurve.yainn.components.ShrinkAndSharpen
 import org.smurve.yainn.helpers.GradientDescentTrainer
 
 import scala.language.postfixOps
@@ -16,23 +15,23 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
   */
-object Ex_4_PreprocessingMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_03_HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
-    /** Overriding some of the default parameters and hyper-parameters here */
+    /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
       override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 30
-      override val ETA = 1e-1  // Learning Rate, you'll probably need adapt, when you experiment with other network designs.
+      override val NUM_EPOCHS = 10
+      override val ETA = 1e-1
     }
 
     /** read data from disk */
     val iterator = createIterator(params)
 
 
-    /** Composable design: stack a preprocessor in front of your network with two hidden layers */
-    val nn = ShrinkAndSharpen(cut = .4) !! createNetwork(params.SEED, 196, 400, 100, 10)
+    /** stack some layers to form a network - check out this method! */
+    val nn = createNetwork(params.SEED, 784, 1400, 400, 200, 10)
 
 
     /** see that the network cannot yet do anything useful without training */
@@ -46,6 +45,7 @@ object Ex_4_PreprocessingMNISTExperiment extends AbstractMNISTExperiment with Lo
 
 
     /** Demonstrate the network's capabilities */
-    predict(nn, iterator.newTestData(params.N_DEMO))
+    val testData = iterator.newTestData(params.N_DEMO)
+    predict(nn.fp(testData._1), testData)
   }
 }

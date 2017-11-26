@@ -19,7 +19,7 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
   */
-object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_10_AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 
@@ -67,7 +67,8 @@ object AutoEncoderForkMNISTExperiment extends AbstractMNISTExperiment with Loggi
 
 
     /** Demonstrate the network's capabilities */
-    predict(nn, iterator.newTestData(params.N_DEMO))
+    val testData = iterator.newTestData(params.N_DEMO)
+    predict(nn.fp(testData._1), testData)
 
     /** can't use the auto-encoder here, don't need to, anyway */
     displayPerfectDigits(input :: tail, 1e-0, 100, params.SEED)

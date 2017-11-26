@@ -86,16 +86,16 @@ class AbstractMNISTExperiment extends Logging {
 
   /**
     * Demonstrate the networks capabilities at the hand of some samples
-    * @param nn the neural network to do the 'job'
+    * @param pred the predictions made by the network
     * @param samples the samples to be classified and compared to their true labels
     */
-  def predict(nn: Layer, samples: (T, T)): Unit = {
+  def predict(pred: T, samples: (T, T)): Unit = {
     val imgs = samples._1
     val lbls = samples._2
     val n = imgs.size(1)
     for ( i <- 0 until n ) {
       val img = imgs(->, i)
-      val pred = nn.fp(img)
+      val predi = pred(->, i)
 
       val tinyImage = sharpen(pool2by2(28) ** img * 0.25, 0.3).reshape(14, 14)
 
@@ -105,9 +105,9 @@ class AbstractMNISTExperiment extends Logging {
       val labeledAs = (lbls(->,i).T ** t(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)).getDouble(0)
 
       /** we interpret the output vector's largest component as the classification of our network */
-      val classidAs = toArray(pred).zipWithIndex.reduce((a, v) => if (v._1 > a._1) v else a)._2
+      val classidAs = toArray(predi).zipWithIndex.reduce((a, v) => if (v._1 > a._1) v else a)._2
 
-      println(s"labeled as   : $labeledAs, classified as: $classidAs - $pred")
+      println(s"labeled as   : $labeledAs, classified as: $classidAs - $predi")
     }
   }
 
@@ -144,7 +144,7 @@ class AbstractMNISTExperiment extends Logging {
       val scale = 1.0 / (digit.maxNumber().doubleValue()+1e-6)
 
       /** see that the network recognizes its own piece of art */
-      predict(nn, (digit * scale, yb))
+      predict(nn.fp(digit*scale), (digit * scale, yb))
     }
 
   }
