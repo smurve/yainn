@@ -38,7 +38,7 @@ object Ex_02_SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging 
     val W = (Nd4j.rand(10, 784, params.SEED) - 0.5) / 10.0
     val b = (Nd4j.rand(10, 1, params.SEED) - 0.5) / 10.0
 
-    val nn = Affine("Dense", W, b) !! Sigmoid() !! Output(euc, euc_prime)
+    val nn = Affine("Dense", W, b) !! Sigmoid() !! Euclidean()
 
 
     /** see that the network cannot yet do anything useful without training */

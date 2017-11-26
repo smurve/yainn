@@ -4,6 +4,10 @@ Here, you'll find 10 scala classes that demonstrate different aspects of neural 
 or using sbt. They'll produce more or less similar output, only achieving their results by different means. The inner workings
 of each experiment is defined in its own markdown document as listed below
 
+
+#### [Design and Architecture](Design_and_Architecture.md)
+Refer to this docuemnt for the technical background and general discussions of design and architecture.
+
 #### [A Minimal Experiment](Ex_01_MinimalExperiment.md)
 Sometimes it's really hard to debug a larger network or a new algorith when you work with non-trivial input data 
 such as images. This experiment has very trivial input data made of ` 3 x 3 ` *image* shapes, yet it deals with the same neural 
