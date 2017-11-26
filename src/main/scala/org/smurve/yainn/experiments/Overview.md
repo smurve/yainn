@@ -35,7 +35,7 @@ by multiplying the input by a large sparse matrix.
 #### [More on Convolutions](Ex_08_ConvolutionalMNISTExperiment.md)
 Trying to get the best accuracy with a single conv layer
 
-#### [Initializing Weights with an AutoEncoder](Ex_09_AutoEncoderMNISTExperiment.md)
+#### [Initializing Weights with an AutoEncoder](Ex_09_AutoEncoderMNISTExperiment.md)
 In the past, some researchers used auto-encoders to initialize the weights of a neural network to give the convergence a *heads-up*
 
 #### [Regularization with Auto-Encoders](Ex_10_AutoEncoderForkMNISTExperiment.md)
