@@ -17,7 +17,7 @@ import scala.language.postfixOps
   * c) the network is trained during a number of epochs
   * d) the trained network successfully classifies most of the images in the test set
   */
-object Ex_06_NaiveSGDWithAdamComparisonExperiment extends AbstractMNISTExperiment with Logging {
+object Ex_06_CompareNaiveWithADAMExperiment extends AbstractMNISTExperiment with Logging {
 
   def main(args: Array[String]): Unit = {
 

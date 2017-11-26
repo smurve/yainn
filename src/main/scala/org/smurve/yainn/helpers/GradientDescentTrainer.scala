@@ -4,7 +4,7 @@ import grizzled.slf4j.Logging
 import org.nd4s.Implicits._
 import org.smurve.yainn.components.{BackPack, Layer}
 import org.smurve.yainn.data.DataIterator
-import org.smurve.yainn.experiments.Ex_06_NaiveSGDWithAdamComparisonExperiment.{printstats, successCount}
+import org.smurve.yainn.experiments.Ex_06_CompareNaiveWithADAMExperiment.{printstats, successCount}
 import org.smurve.yainn.experiments.Params
 import org.smurve.yainn.timed
 
