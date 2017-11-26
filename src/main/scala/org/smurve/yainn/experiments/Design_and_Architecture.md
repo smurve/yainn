@@ -17,21 +17,28 @@ automatically determines what implementation is the fastest you can get on your 
 ### The Layer concept
 In the entire code base we're using the trait [Layer](../components/Layer.scala) that - amongst others implements the following methods:
 ```
-def fp ( x: T): T
-def fbp(x: T, yb: T, orig_x: T, update: Boolean = true): BackPack 
-def !!(rhs: Layer): Layer
+trait Layer {
+    ...
+    def fp ( x: T): T
+    def fbp(x: T, yb: T, orig_x: T, update: Boolean = true): BackPack 
+    def !!(rhs: Layer): Layer
+    ...
+}
 ```
 `fp(x)` is a forward-pass that takes a m x n input tensor, representing a mini-batch of m n-dimensional column vectors, and returns
 the prediction, based on the current set of parameters
 
 `fbp(x, yb, orig_x)` implements the forward-backward pass in a single go.
 
-`def !!(rhs: Layer): Layer` creates a stack of two layers, which is itself a `Layer`, too
+`def !!(rhs: Layer): Layer` creates a stack of two layers, which is itself a `Layer`, too.
 
 A neural network is any stack/chain of layers that ends with an output layer, the latter providing the cost function. So, a 
-neural network in our code base is simply represented by the input layer. There's no such class as a `NeuralNetwork`, or so.
+neural network in our code base is simply represented by the input, namely the first layer of a stack of layers. 
+There's no such class as a `NeuralNetwork`, or so. Forward and backward pass are implemented by handing over computation
+between adjacent layers.
 
-Here's the code for the smallest meaningful network. `Affine` is a more mathematical term for dense layer, and `Euclidean()` 
+Here's the code for the smallest meaningful network: `Affine` is a more mathematical term for dense layer, `Sigmoid()` is
+obviously the sigmoid activation function implemented as a layer in its own right, and `Euclidean()` 
 is an output layer providing a cost function based on the euclidean distance between the predictions and the resp. labels.
 
 ```
@@ -44,21 +51,29 @@ This very simple network achieves a *ridiculously* low accuracy of 84.6% after 4
 
 
 
-## Training with the `GradientDescentTrainer`
+### Training with the `GradientDescentTrainer`
 Here's the slightly simplified code for the trainer 
 ```
     for (e <- 1 to NUM_EPOCHS) {
       while (iterator.hasNext) { // for all mini-batches
         val (trainingImages, trainingLabels) = iterator.nextMiniBatch()
-
+    
+        // returns gradients of all layers in Backpack
         val BackPack(cost, _, grads) = nn.fbp(trainingImages, trainingLabels, ...))
     
+        // multiply all grads with the learning rate eta and update
         val deltas = grads.map({ case (grad_bias, grad_weight) =>
             (grad_bias * ETA, grad_weight * ETA)
+    
+        // the update method propagates through the entire network
         nn.update(deltas)
       }
-      iterator.reset()
+      iterator.reset() // reset for the next epoch
       val successRate = successCount(nn, ...)
       ...
     }
 ```
+
+### The Immutability Dilemma
+Immutability of large data structures would imply large garbage for the GC.
+

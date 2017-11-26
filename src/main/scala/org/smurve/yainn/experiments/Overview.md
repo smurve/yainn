@@ -6,7 +6,7 @@ of each experiment is defined in its own markdown document as listed below
 
 
 #### [Design and Architecture](Design_and_Architecture.md)
-Refer to this docuemnt for the technical background and general discussions of design and architecture.
+Refer to this document for the technical background and general discussions of design and architecture.
 
 #### [A Minimal Experiment](Ex_01_MinimalExperiment.md)
 Sometimes it's really hard to debug a larger network or a new algorith when you work with non-trivial input data 
