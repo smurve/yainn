@@ -2,7 +2,7 @@
 ## Overview of experiments
 Here, you'll find 10 scala classes that demonstrate different aspects of neural networks. You can run any of them in your IDE
 or using sbt. They'll produce more or less similar output, only achieving their results by different means. The inner workings
-of each experiment is defined in its own markdown document as listed below
+of each experiment are described in its own markdown document as listed below.
 
 
 #### [Design and Architecture](Design_and_Architecture.md)
