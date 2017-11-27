@@ -10,10 +10,11 @@ import org.nd4j.linalg.ops.transforms.Transforms._
   * @param beta1 Adams beta_1 momentum parameter, defaults to
   * @param beta2 Adams beta_2 other parameter, defaults to
   * @param eta learning rate
+  * @param decay learning rate decay
   * @param epsilon stability
   */
-case class Adam ( beta1: Double = 0.9, beta2: Double = 0.999, eta: Double, epsilon: Double = 1e-8,
-                  size_W: Int, size_b: Int ) extends Updater {
+case class Adam ( beta1: Double = 0.9, beta2: Double = 0.999, eta: Double, decay: Double = 1.0,
+                  epsilon: Double = 1e-8, size_W: Int, size_b: Int ) extends Updater {
 
   private val v_W: T = Nd4j.zeros(size_W).T
   private val s_W: T = Nd4j.zeros(size_W).T
@@ -44,9 +45,9 @@ case class Adam ( beta1: Double = 0.9, beta2: Double = 0.999, eta: Double, epsil
     s_b.muli(beta2).addi((gb * gb) * (-beta2 + 1))
     val s_b_corr = s_b / (1-math.pow(beta2, t))
 
-    val delta_W = v_W_corr * eta / (sqrt(s_W_corr) + epsilon)
+    val delta_W = v_W_corr * eta * math.pow(decay, t)/ (sqrt(s_W_corr) + epsilon)
     W.reshape(-1,1).subi(delta_W)
-    val delta_b = v_b_corr * eta / (sqrt(s_b_corr) + epsilon)
+    val delta_b = v_b_corr * eta * math.pow(decay, t) / (sqrt(s_b_corr) + epsilon)
     b.reshape(-1,1).subi(delta_b)
 
     t += 1

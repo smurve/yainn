@@ -1,4 +1,4 @@
-## Experiment 1: Single layer MNIST
+## Experiment 2: Single layer MNIST
 
 The Scala Code: [`Ex_02_SimpleMNISTExperiment`](Ex_02_SimpleMNISTExperiment.scala)
 

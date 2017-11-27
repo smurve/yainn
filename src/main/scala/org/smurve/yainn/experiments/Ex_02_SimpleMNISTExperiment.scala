@@ -12,7 +12,6 @@ import scala.language.postfixOps
 
 /**
   * The inevitable, ubiquitous MNIST show case from bricks and mortar with a single affine layer
-  * With the help of ND4J/ND4S linear algebra abstractions.
   * Run this without any arguments to see how
   * a) data is loaded from the MNIST-provided files
   * b) a network is created consisting of affine (dense, or fully connected) layers and appropriate activation functions
@@ -44,7 +43,7 @@ object Ex_02_SimpleMNISTExperiment extends AbstractMNISTExperiment with Logging 
     /** see that the network cannot yet do anything useful without training */
     val testSet = iterator.newTestData(params.TEST_SIZE)
     val successRate = successCount(nn, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
-    info(s"Sucess rate before training: $successRate")
+    info(s"Success rate before training: $successRate")
 
 
     /** Use gradient descent to train the network */

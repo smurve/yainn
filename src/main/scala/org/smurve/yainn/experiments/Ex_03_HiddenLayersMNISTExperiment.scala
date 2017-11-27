@@ -21,8 +21,8 @@ object Ex_03_HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Lo
 
     /** Overriding the parameters and hyper-parameters here */
     val params = new Params() {
-      override val MINI_BATCH_SIZE = 1000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
-      override val NUM_EPOCHS = 10
+      override val MINI_BATCH_SIZE = 2000 // parallelize: use mini-batches of 1000 in each fwd-bwd pass
+      override val NUM_EPOCHS = 40
       override val ETA = 1e-1
     }
 
@@ -37,7 +37,7 @@ object Ex_03_HiddenLayersMNISTExperiment extends AbstractMNISTExperiment with Lo
     /** see that the network cannot yet do anything useful without training */
     val testSet = iterator.newTestData(params.TEST_SIZE)
     val successRate = successCount(nn, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
-    info(s"Sucess rate before training: $successRate")
+    info(s"Success rate before training: $successRate")
 
 
     /** Use gradient descent to train the network */

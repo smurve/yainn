@@ -3,7 +3,7 @@
 
 *documentation still under construction, code is pretty much ready*
 
-Welcome the source code of my blog [Yet another introduction to neural networks](smurve.github.io/yainn1)!
+Welcome the source code of my blog [Yet another introduction to neural networks](https://smurve.github.io/yainn1)!
 If you haven't seen the blog yet - take a quick look, it helps understanding what I do here.
 
 Since this is a scala project, you'll find all sources in src/main/scala. 
@@ -22,5 +22,6 @@ In order to have sufficient performance on your platform, I recommend you instal
 linear algebra accelerator - such as [OpenBLAS](http://www.openblas.net/) - before moving on. If you are a very patient
 person and like to have a lot of time for coffee or alike, just go ahead. It'll work, anyway.
  
-### Experiments are variants, not versions
-The idea of experiments
+
+To explore the code, the best you can do is to start with the [Overview](src/main/scala/org/smurve/yainn/experiments/Overview.md)
+of the experiments

@@ -59,7 +59,7 @@ class AbstractMNISTExperiment extends Logging {
       val b = (Nd4j.rand(right, 1, seed) - 0.5) / 10.0
       Affine(name, W, b) !!
         (if (index == dims.size - 2) Sigmoid() else Relu())
-    }).reduce((acc, elem) => acc !! elem) !! Output(x_ent, x_ent_prime) //Output(euc, euc_prime)
+    }).reduce((acc, elem) => acc !! elem) !! Output(x_ent, x_ent_prime)
 
 
   /**
@@ -121,12 +121,18 @@ class AbstractMNISTExperiment extends Logging {
 
   /**
     * derive 'perfect' digits by optimizing white noise, until it is recognized as one of the images
+    *
+    * @param nn a trained neural network
+    * @param eta learning rate for the 'image learning'
+    * @param nmax max number of updates
+    * @param seed a rng seed
     */
+
   def displayPerfectDigits(nn: Layer, eta: Double, nmax: Int, seed: Long): Unit = {
     for ( i<- 0 to 9) {
 
       /** just some white noise */
-      var digit = Nd4j.rand(seed, 784).T / 100
+      var digit = Nd4j.zeros(784, 1) / 100
 
       /** pre-define the desired classification */
       val yb = t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

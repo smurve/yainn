@@ -47,7 +47,7 @@ object Ex_01_MinimalExperiment {
       }
       data.reset()
       val successRate = successCount(nn, testSet).sum(1)
-      println(s"Sucess rate: $successRate")
+      println(s"Success rate: $successRate")
     }
 
     predict(nn, data.newTestData(N_DEMO))

@@ -26,7 +26,7 @@ Below are the shapes, printed out at the console, "88" denotes a single pixel
   88       Diamond
 ```
 
-The experiment creates a fully connected network with a single hidden layer
+The experiment creates a fully connected network with one hidden layer
 
 ```
     val W0 = Nd4j.rand(nh, nx, seed) - 0.5
@@ -60,4 +60,6 @@ and trains it with mini-batch gradient descent:
 ```
 
 You'll see, it's done in no time. I found it extremely helpful to develop all the basic foundations with the help
-of this minimalistic approach.
+of this minimalistic test case.
+
+[Next: Single layer MNIST](Ex_02_SimpleMNISTExperiment.md)
