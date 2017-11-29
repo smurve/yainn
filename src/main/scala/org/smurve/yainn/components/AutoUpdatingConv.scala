@@ -29,12 +29,15 @@ case class AutoUpdatingConv(name: String, p: ConvParameters) extends AbstractLay
     val dCdy = dC_dy(x, from_next.dC_dy)
 
     val myGrads = grads(x, from_next.dC_dy).get
+
+    val cost = p.cost
+
     if ( update ) {
       p.update(myGrads)
     }
 
     BackPack(
-      from_next.C + p.cost,
+      from_next.C + cost,
       dCdy,
       List(myGrads) ::: from_next.grads)
   }

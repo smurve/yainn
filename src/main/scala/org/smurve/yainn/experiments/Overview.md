@@ -4,7 +4,6 @@ Here, you'll find 10 scala classes that demonstrate different aspects of neural 
 or using sbt. They'll produce more or less similar output, only achieving their results by different means. The inner workings
 of each experiment are described in its own markdown document as listed below.
 
-
 #### [Design and Architecture](Design_and_Architecture.md)
 Refer to this document for the technical background and general discussions of design and architecture.
 

@@ -38,7 +38,7 @@ object Ex_04_PreprocessingMNISTExperiment extends AbstractMNISTExperiment with L
     /** see that the network cannot yet do anything useful without training */
     val testSet = iterator.newTestData(params.TEST_SIZE)
     val successRate = successCount(nn, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
-    info(s"Sucess rate before training: $successRate")
+    info(s"Success rate before training: $successRate")
 
 
     /** Use gradient descent to train the network */

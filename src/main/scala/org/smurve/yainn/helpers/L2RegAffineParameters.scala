@@ -6,6 +6,7 @@ import org.nd4s.Implicits._
 
 /**
   * L2 regularized autoupdating parameters for affine layers
+  * Weights initialized accoring to He et al. 2015: https://arxiv.org/pdf/1502.01852.pdf
   * @param inputSize input size
   * @param outputSize output size
   * @param alpha relative weight of the regularizing L2 cost
@@ -14,8 +15,8 @@ import org.nd4s.Implicits._
 class L2RegAffineParameters(inputSize: Int, outputSize: Int, alpha: Double,
                             seed: Long, updater: Option[Updater]) extends SmartParameters {
 
-  val W: T = (Nd4j.rand(outputSize, inputSize, seed) - 0.5) / 10.0
-  val b: T = (Nd4j.rand(outputSize, 1, seed) - 0.5) / 10.0
+  val W: T = Nd4j.randn(outputSize, inputSize, seed) * math.sqrt(2.0 / inputSize)
+  val b: T = Nd4j.zeros(outputSize, 1)
 
   /**
     * update the weights by eta-fold of the gradients if 'updatable' is set to true

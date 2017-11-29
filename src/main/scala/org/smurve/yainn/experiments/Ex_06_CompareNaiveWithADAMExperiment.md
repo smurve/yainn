@@ -4,8 +4,8 @@ The Scala Code: [`Ex_06_CompareNaiveWithADAMExperiment`](Ex_06_CompareNaiveWithA
 
 In this experiment, at last we're going to let some of of the more naive technologies behind. In this example, we
 create two networks, one with euclidean and sigmoid and naive minibatch gradient descent, and another one with a better
-final activation and cost function, with a state-of-the-art updating algorithm and learning rate decay. Observe how the 
-advanced network dramatically outperforms our former naive approach with a whooping 97.6% compared to 79.4% after 10 epochs.
+final activation and cost function, with a state-of-the-art updating algorithm, weight initialization and learning rate decay. 
+Observe how the advanced network dramatically outperforms our former naive approach with a whooping 97.3% compared to 90.1% after 10 epochs.
 
 ```
   def createNetwork_with_StateOfTheArt(seed: Long, eta: Double, dims: Int*): Layer =
@@ -56,5 +56,9 @@ Sometimes, networks tend to fit perfectly to the training set but increasingly f
 Various methods have been tried to come by this problem, one of which is weight decay or L2 regularization, also described in aforementioned
 [Chapter 3](http://neuralnetworksanddeeplearning.com/chap3.html). 
 
-
+### Weight initialization
+The parameters are from now on being handled by a dedicated implementation of [SmartParameters](../helpers/SmartParameters.scala). For fully 
+connected layers, that is the [L2RegAffineParameters](../helpers/L2RegAffineParameters.scala) parameter that provides the L2 regularization described 
+above and it initializes the weights with a normal distribution with zero mean and std dev sqrt(2/n_input), as suggested by
+[Kaiming He at al. 2015](https://arxiv.org/pdf/1502.01852.pdf)
 

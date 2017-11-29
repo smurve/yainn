@@ -47,7 +47,7 @@ object Ex_06_CompareNaiveWithADAMExperiment extends AbstractMNISTExperiment with
       info(s"Using $name optimizer")
       val testSet = iterator.newTestData(params.TEST_SIZE)
       val successRate = successCount(network, testSet).sumT[Double] * 100.0 / params.TEST_SIZE
-      info(s"Sucess rate before training: $successRate")
+      info(s"Success rate before training: $successRate")
 
       /** Use gradient descent to train the network */
       new GradientDescentTrainer(List(network)).train(iterator, params)

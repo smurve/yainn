@@ -26,11 +26,13 @@ case class AutoUpdatingAffine(name: String, p: SmartParameters ) extends Abstrac
 
     val myGrads = grads(x, from_next.dC_dy).get
 
+    val cost = p.cost
+
     if ( update )
       p.update(myGrads)
 
     BackPack(
-      from_next.C + p.cost,
+      from_next.C + cost,
       dCdy,
       List(myGrads) ::: from_next.grads)
   }
